@@ -7,3 +7,8 @@
 body {
   @apply bg-zinc-50 text-zinc-900;
 }
+
+/* Foco visível e consistente para navegação por teclado (inputs usam o próprio ring) */
+:focus-visible {
+  @apply rounded-md outline-2 outline-offset-2 outline-emerald-600;
+}

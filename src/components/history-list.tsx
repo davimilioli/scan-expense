@@ -26,7 +26,7 @@ export function HistoryList() {
   if (!hasHydrated) {
     return (
       <Panel title="Histórico">
-        <p className="text-sm text-zinc-400">Carregando histórico...</p>
+        <p className="text-sm text-zinc-500">Carregando histórico...</p>
       </Panel>
     );
   }
@@ -34,7 +34,7 @@ export function HistoryList() {
   return (
     <Panel title="Histórico">
       {entries.length === 0 ? (
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-500">
           Nenhum recibo salvo ainda. As extrações aparecem aqui.
         </p>
       ) : (

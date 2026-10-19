@@ -49,7 +49,7 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
       <h3 className="text-sm font-medium text-zinc-500">Itens</h3>
 
       {items.length === 0 ? (
-        <p className="text-sm text-zinc-400">Sem itens discriminados.</p>
+        <p className="text-sm text-zinc-500">Sem itens discriminados.</p>
       ) : (
         <div className="space-y-3 md:space-y-2">
           <div

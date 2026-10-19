@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { extractExpense } from "@/app/actions/extract-expense";
 import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { ExpenseCard } from "@/components/expense-card";
+import { ExtractionSkeleton } from "@/components/extraction-skeleton";
 import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
 import { compressImage, createThumbnail } from "@/lib/image";
@@ -97,7 +98,9 @@ export function ExpenseExtractor() {
 
       <Panel title="Dados extraídos">
         <div className="space-y-3">
-          {hasHydrated && activeEntry ? (
+          {isPending ? (
+            <ExtractionSkeleton />
+          ) : hasHydrated && activeEntry ? (
             // A key recria o formulário quando outra entrada do histórico é aberta
             <ExpenseCard
               key={activeEntry.id}
@@ -105,9 +108,7 @@ export function ExpenseExtractor() {
               expense={activeEntry.expense}
             />
           ) : (
-            <p className="text-sm text-zinc-400">
-              {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}
-            </p>
+            <p className="text-sm text-zinc-500">Nenhuma extração ainda.</p>
           )}
           {hasStorageError && (
             <p role="alert" className="text-sm text-amber-700">

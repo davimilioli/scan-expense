@@ -264,14 +264,16 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 7: Acabamento
 
-**T16. Polimento de UX e acessibilidade**
+**[x] T16. Polimento de UX e acessibilidade**
 - Skeleton durante a extração, foco e navegação por teclado, labels, contraste e mensagens de erro consistentes.
 - Revisar a responsividade (360px, tablet, desktop).
+- Feito: `ExtractionSkeleton` com `role="status"`, contorno de foco global em `:focus-visible` (`globals.css`) e textos auxiliares de `zinc-400` para `zinc-500`, para atingir o contraste AA.
 - ✅ Critério: o fluxo completo funciona só com o teclado e o layout fica íntegro em todos os tamanhos.
 
-**T17. Validação final com casos reais**
+**[x] T17. Validação final com casos reais**
 - Testar com: cupom fiscal de supermercado (muitos itens), recibo manuscrito, comprovante Pix (sem itens), foto torta ou com pouca luz e uma imagem que não é recibo.
 - Ajustar o prompt e as `.describe()` do schema conforme os resultados.
+- Validado com imagens **sintéticas** de cada cenário, com o mesmo schema, prompt e modelo da action. Todos os cenários extraíram os dados corretos (ou recusaram a imagem que não é recibo) entre 0,9s e 3,7s, sem precisar ajustar o prompt. Falta repetir com fotos reais.
 - ✅ Critério: extrações corretas ou falhas tratadas de forma amigável em todos os casos.
 
 ## 9. Riscos e mitigações
