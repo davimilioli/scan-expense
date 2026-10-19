@@ -171,20 +171,20 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 0: Fundação
 
-**T1. Dependências e configuração**
+**[x] T1. Dependências e configuração**
 - Instalar `ai`, `@ai-sdk/google`, `zod` e `zustand`.
 - Criar `.env.example` com `GOOGLE_GENERATIVE_AI_API_KEY=` e garantir que `.env*.local` esteja no `.gitignore`.
 - Configurar `serverActions.bodySizeLimit` no `next.config.ts` (conferir na documentação local).
 - ✅ Critério: o projeto sobe sem erros e as dependências constam no `package.json`.
 
-**T2. Layout base**
+**[x] T2. Layout base**
 - Limpar o `page.tsx` e o `globals.css` do template, definir fonte, cores neutras e metadata (título "Scan Expense").
 - Estrutura da página: cabeçalho simples, área principal (upload + resultado) e área de histórico.
 - ✅ Critério: página limpa e responsiva com os blocos vazios posicionados.
 
-**T3. Schema Zod e tipos**
+**[x] T3. Schema Zod e tipos**
 - Criar `src/lib/schemas/expense.ts` com o enum de categorias, `expenseItemSchema`, `expenseSchema` (com `.describe()`), os tipos inferidos e `HistoryEntry`.
-- Criar `src/lib/format.ts` (BRL e data pt-BR ↔ ISO).
+- Criar `src/lib/format.ts` (BRL e data ISO → pt-BR; o `<input type="date">` já trabalha em ISO, então não é preciso converter de volta).
 - ✅ Critério: tipos exportados sem erros de TypeScript.
 
 ### Fase 1: Upload
