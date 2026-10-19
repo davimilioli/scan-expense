@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { extractExpense } from "@/app/actions/extract-expense";
+import { ExpenseResultView } from "@/components/expense-result-view";
 import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
 import { compressImage, createThumbnail } from "@/lib/image";
@@ -76,9 +77,7 @@ export function ExpenseExtractor() {
       <Panel title="Dados extraídos">
         <div className="space-y-3">
           {hasHydrated && activeEntry ? (
-            <pre className="overflow-x-auto rounded-lg bg-zinc-50 p-4 text-xs">
-              {JSON.stringify(activeEntry.expense, null, 2)}
-            </pre>
+            <ExpenseResultView expense={activeEntry.expense} />
           ) : (
             <p className="text-sm text-zinc-400">
               {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}
