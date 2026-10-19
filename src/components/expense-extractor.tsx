@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { extractExpense } from "@/app/actions/extract-expense";
-import { ExpenseResultView } from "@/components/expense-result-view";
+import { ExpenseCard } from "@/components/expense-card";
+import { ExportDialog } from "@/components/export-dialog";
 import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
 import { compressImage, createThumbnail } from "@/lib/image";
@@ -77,12 +78,15 @@ export function ExpenseExtractor() {
       <Panel title="Dados extraídos">
         <div className="space-y-3">
           {hasHydrated && activeEntry ? (
-            // A key recria o formulário quando outra entrada do histórico é aberta
-            <ExpenseResultView
-              key={activeEntry.id}
-              entryId={activeEntry.id}
-              expense={activeEntry.expense}
-            />
+            <div className="space-y-6">
+              {/* A key recria o formulário quando outra entrada do histórico é aberta */}
+              <ExpenseCard
+                key={activeEntry.id}
+                entryId={activeEntry.id}
+                expense={activeEntry.expense}
+              />
+              <ExportDialog expense={activeEntry.expense} />
+            </div>
           ) : (
             <p className="text-sm text-zinc-400">
               {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}
