@@ -1,0 +1,132 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useId, useRef, useState } from "react";
+
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE_IN_BYTES = 10 * 1024 * 1024;
+
+function getValidationError(file: File): string | null {
+  if (!ACCEPTED_TYPES.includes(file.type)) {
+    return "Formato não suportado. Envie uma imagem JPG, PNG ou WEBP.";
+  }
+  if (file.size > MAX_FILE_SIZE_IN_BYTES) {
+    return "A imagem deve ter no máximo 10MB.";
+  }
+  return null;
+}
+
+export function ImageUploader() {
+  const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Libera a URL do preview anterior quando ele é trocado ou removido
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  function selectFile(file: File | undefined) {
+    if (!file) return;
+
+    const validationError = getValidationError(file);
+    setErrorMessage(validationError);
+    if (validationError) return;
+
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    selectFile(event.target.files?.[0]);
+    // Limpa o valor para permitir escolher o mesmo arquivo de novo
+    event.target.value = "";
+  }
+
+  function handleDragOver(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    selectFile(event.dataTransfer.files[0]);
+  }
+
+  function removeImage() {
+    setPreviewUrl(null);
+    setErrorMessage(null);
+  }
+
+  const dropZoneClassName = isDragging
+    ? "border-emerald-500 bg-emerald-50"
+    : "border-zinc-300 hover:border-zinc-400";
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={inputRef}
+        id={inputId}
+        type="file"
+        accept={ACCEPTED_TYPES.join(",")}
+        onChange={handleInputChange}
+        className="peer sr-only"
+      />
+
+      {previewUrl ? (
+        <div className="space-y-3">
+          <div className="relative h-80 overflow-hidden rounded-lg bg-zinc-100">
+            <Image
+              src={previewUrl}
+              alt="Pré-visualização do recibo"
+              fill
+              unoptimized
+              className="object-contain"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-50"
+            >
+              Trocar imagem
+            </button>
+            <button
+              type="button"
+              onClick={removeImage}
+              className="rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+            >
+              Remover
+            </button>
+          </div>
+        </div>
+      ) : (
+        <label
+          htmlFor={inputId}
+          onDragOver={handleDragOver}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          className={`flex h-48 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500 ${dropZoneClassName}`}
+        >
+          {/* Sem eventos nos filhos para o dragleave não disparar ao passar por cima do texto */}
+          <span className="pointer-events-none text-sm font-medium">
+            Arraste a imagem aqui ou clique para selecionar
+          </span>
+          <span className="pointer-events-none text-xs text-zinc-500">
+            JPG, PNG ou WEBP até 10MB
+          </span>
+        </label>
+      )}
+
+      {errorMessage && (
+        <p role="alert" className="text-sm text-red-600">
+          {errorMessage}
+        </p>
+      )}
+    </div>
+  );
+}

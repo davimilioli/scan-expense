@@ -189,12 +189,12 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 1: Upload
 
-**T4. Componente `ImageUploader`**
+**[x] T4. Componente `ImageUploader`**
 - Arrastar e soltar + input de arquivo, preview, remover/trocar e validação de tipo e tamanho.
 - Estados visuais: vazio, arrastando por cima, com imagem e erro.
 - ✅ Critério: ao selecionar ou soltar uma imagem válida, o preview aparece. Arquivos inválidos mostram erro.
 
-**T5. Utilitários de imagem (`src/lib/image.ts`)**
+**[x] T5. Utilitários de imagem (`src/lib/image.ts`)**
 - `compressImage(file) → Blob/File` (lado maior ≤ 1600px, JPEG 0.85).
 - `createThumbnail(file) → dataURL` (lado maior ≈ 200px, JPEG 0.7).
 - ✅ Critério: uma foto de celular (~4MB) vira um arquivo menor que 1MB e uma miniatura de ~20KB.

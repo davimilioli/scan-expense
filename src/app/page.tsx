@@ -1,3 +1,4 @@
+import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
 
 export default function Home() {
@@ -13,7 +14,7 @@ export default function Home() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <main className="space-y-6">
           <Panel title="Imagem">
-            <p className="text-sm text-zinc-400">Upload em breve.</p>
+            <ImageUploader />
           </Panel>
           <Panel title="Dados extraídos">
             <p className="text-sm text-zinc-400">Nenhuma extração ainda.</p>
