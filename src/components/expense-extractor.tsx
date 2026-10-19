@@ -1,32 +1,53 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { extractExpense, type ExtractExpenseResult } from "@/app/actions/extract-expense";
+import { extractExpense } from "@/app/actions/extract-expense";
 import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
-import { compressImage } from "@/lib/image";
+import { compressImage, createThumbnail } from "@/lib/image";
+import { useExpenseStore, useStoreHydration } from "@/store/expense-store";
 
 export function ExpenseExtractor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [result, setResult] = useState<ExtractExpenseResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const hasHydrated = useStoreHydration();
+  const addEntry = useExpenseStore((state) => state.addEntry);
+  const hasStorageError = useExpenseStore((state) => state.hasStorageError);
+  const activeEntry = useExpenseStore((state) =>
+    state.entries.find((entry) => entry.id === state.activeId),
+  );
 
   function handleFileChange(file: File | null) {
     setSelectedFile(file);
-    setResult(null);
+    setErrorMessage(null);
   }
 
   function handleExtract() {
     if (!selectedFile) return;
+    setErrorMessage(null);
 
     startTransition(async () => {
       try {
         const formData = new FormData();
         formData.append("image", await compressImage(selectedFile));
-        setResult(await extractExpense(formData));
+        const result = await extractExpense(formData);
+
+        if (!result.ok) {
+          setErrorMessage(result.error);
+          return;
+        }
+
+        addEntry({
+          id: crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+          thumbnail: await createThumbnail(selectedFile),
+          expense: result.data,
+        });
       } catch (error) {
         console.error("Falha ao preparar a imagem:", error);
-        setResult({ ok: false, error: "Não foi possível processar a imagem. Tente outra foto." });
+        setErrorMessage("Não foi possível processar a imagem. Tente outra foto.");
       }
     });
   }
@@ -44,24 +65,32 @@ export function ExpenseExtractor() {
           >
             {isPending ? "Extraindo dados..." : "Extrair dados"}
           </button>
-          {result && !result.ok && (
+          {errorMessage && (
             <p role="alert" className="text-sm text-red-600">
-              {result.error}
+              {errorMessage}
             </p>
           )}
         </div>
       </Panel>
 
       <Panel title="Dados extraídos">
-        {result?.ok ? (
-          <pre className="overflow-x-auto rounded-lg bg-zinc-50 p-4 text-xs">
-            {JSON.stringify(result.data, null, 2)}
-          </pre>
-        ) : (
-          <p className="text-sm text-zinc-400">
-            {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}
-          </p>
-        )}
+        <div className="space-y-3">
+          {hasHydrated && activeEntry ? (
+            <pre className="overflow-x-auto rounded-lg bg-zinc-50 p-4 text-xs">
+              {JSON.stringify(activeEntry.expense, null, 2)}
+            </pre>
+          ) : (
+            <p className="text-sm text-zinc-400">
+              {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}
+            </p>
+          )}
+          {hasStorageError && (
+            <p role="alert" className="text-sm text-amber-700">
+              O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
+              entradas antigas do histórico.
+            </p>
+          )}
+        </div>
       </Panel>
     </>
   );

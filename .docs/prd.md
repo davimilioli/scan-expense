@@ -213,14 +213,15 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 3: Estado e histórico
 
-**T8. Store Zustand (`src/store/expense-store.ts`)**
+**[x] T8. Store Zustand (`src/store/expense-store.ts`)**
+- Implementado com `skipHydration` + o hook `useStoreHydration()`, que lê o localStorage só depois de montar no cliente. Só `entries` e `activeId` são persistidos.
 - Estado: `entries: HistoryEntry[]` e `activeId: string | null`.
 - Ações: `addEntry`, `updateExpense(id, expense)`, `removeEntry`, `clearHistory` e `setActive`.
 - `persist` com a chave `scan-expense-history`, tratamento de `QuotaExceededError` e controle de reidratação (`hasHydrated`).
 - ✅ Critério: as entradas sobrevivem a um reload da página e não há erro de hidratação.
 
-**T9. Salvar a extração no histórico**
-- Depois de uma extração bem-sucedida, chamar `addEntry` (com a miniatura) e definir a entrada como ativa.
+**[x] T9. Salvar a extração no histórico**
+- Depois de uma extração bem-sucedida, chamar `addEntry` (com a miniatura) e definir a entrada como ativa. O próprio `addEntry` já define a entrada nova como ativa.
 - ✅ Critério: cada extração gera uma nova entrada persistida.
 
 ### Fase 4: Card editável
