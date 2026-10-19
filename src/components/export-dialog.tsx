@@ -11,14 +11,18 @@ const VIEW_MODES = [
 
 const COPY_FEEDBACK_DURATION_IN_MS = 2000;
 
+export const SECONDARY_BUTTON_CLASS_NAME =
+  "w-full rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50";
+
 type ViewMode = (typeof VIEW_MODES)[number]["value"];
 type CopyStatus = "idle" | "copied" | "failed";
 
 interface ExportDialogProps {
   expense: Expense;
+  isDisabled: boolean;
 }
 
-export function ExportDialog({ expense }: ExportDialogProps) {
+export function ExportDialog({ expense, isDisabled }: ExportDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("text");
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
@@ -58,7 +62,8 @@ export function ExportDialog({ expense }: ExportDialogProps) {
       <button
         type="button"
         onClick={openDialog}
-        className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50"
+        disabled={isDisabled}
+        className={SECONDARY_BUTTON_CLASS_NAME}
       >
         Ver e copiar resultado
       </button>

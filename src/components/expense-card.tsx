@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ExpenseItemsTable, type ItemDraft } from "@/components/expense-items-table";
+import { ExportActions } from "@/components/export-actions";
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { formatCurrency, parseDecimal } from "@/lib/format";
 import { categories, expenseSchema, type Category, type Expense } from "@/lib/schemas/expense";
@@ -132,9 +133,11 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
 
       {!validation.success && (
         <p className="text-xs text-zinc-500">
-          Corrija os campos destacados para salvar as alterações.
+          Corrija os campos destacados para salvar e exportar as alterações.
         </p>
       )}
+
+      <ExportActions expense={expense} isDisabled={!validation.success} />
     </div>
   );
 }

@@ -239,14 +239,14 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 5: Exportação
 
-**T12. Utilitários de exportação (`src/lib/export.ts`)**
+**[x] T12. Utilitários de exportação (`src/lib/export.ts`)**
 - `toJson(expense)` e `toCsv(expense)` (`;`, BOM UTF-8, escape de aspas, uma linha por item) e `downloadFile(content, filename, mime)`.
+- Também tem `toText(expense)` e `getCsvFileName(expense)`. No CSV, números usam vírgula decimal e a data sai em dd/mm/aaaa, para o Excel pt-BR reconhecer os tipos.
 - ✅ Critério: o CSV gerado abre corretamente no Excel pt-BR, com acentos intactos.
 
-> Adiantado: `src/lib/export.ts` já tem `toJson` e `toText`, e o componente `ExportDialog` (botão "Ver e copiar resultado" abaixo do card) abre um modal com abas Texto/JSON e um botão para copiar a aba aberta. Falta o CSV.
-
-**T13. Componente `ExportActions`**
+**[x] T13. Componente `ExportActions`**
 - Botões "Copiar JSON" (com feedback) e "Exportar CSV" (nome do arquivo: `despesa-<estabelecimento>-<data>.csv`), desabilitados quando os dados forem inválidos.
+- A cópia fica no modal do `ExportDialog` (botão "Ver e copiar resultado", com abas Texto/JSON). O `ExportActions` fica no fim do `ExpenseCard`, que é quem sabe se o formulário está válido.
 - ✅ Critério: as duas ações funcionam com os dados editados.
 
 ### Fase 6: Histórico na interface
