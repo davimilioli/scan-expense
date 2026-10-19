@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
+import { ACCEPTED_IMAGE_TYPES } from "@/lib/image";
 
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE_IN_BYTES = 10 * 1024 * 1024;
 
 function getValidationError(file: File): string | null {
-  if (!ACCEPTED_TYPES.includes(file.type)) {
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
     return "Formato não suportado. Envie uma imagem JPG, PNG ou WEBP.";
   }
   if (file.size > MAX_FILE_SIZE_IN_BYTES) {
@@ -16,7 +16,11 @@ function getValidationError(file: File): string | null {
   return null;
 }
 
-export function ImageUploader() {
+interface ImageUploaderProps {
+  onFileChange: (file: File | null) => void;
+}
+
+export function ImageUploader({ onFileChange }: ImageUploaderProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -37,6 +41,7 @@ export function ImageUploader() {
     if (validationError) return;
 
     setPreviewUrl(URL.createObjectURL(file));
+    onFileChange(file);
   }
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -59,6 +64,7 @@ export function ImageUploader() {
   function removeImage() {
     setPreviewUrl(null);
     setErrorMessage(null);
+    onFileChange(null);
   }
 
   const dropZoneClassName = isDragging
@@ -71,7 +77,7 @@ export function ImageUploader() {
         ref={inputRef}
         id={inputId}
         type="file"
-        accept={ACCEPTED_TYPES.join(",")}
+        accept={ACCEPTED_IMAGE_TYPES.join(",")}
         onChange={handleInputChange}
         className="peer sr-only"
       />

@@ -1,3 +1,5 @@
+export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 const COMPRESSED_MAX_SIDE = 1600;
 const COMPRESSED_QUALITY = 0.85;
 const THUMBNAIL_MAX_SIDE = 200;

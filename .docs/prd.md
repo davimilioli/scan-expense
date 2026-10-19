@@ -201,7 +201,8 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 2: Extração com IA
 
-**T6. Server Action `extractExpense`**
+**[x] T6. Server Action `extractExpense`**
+- Implementado com `generateText` + `Output.object` (o `generateObject` está descontinuado no AI SDK 7) e o modelo `gemini-flash-lite-latest` (o `gemini-flash-latest` estava sobrecarregado). A IA também retorna `isReceipt` para sinalizar imagens que não são recibos.
 - `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateObject` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, itens vazios para comprovante Pix, erro quando não for recibo).
 - Retorna um resultado discriminado `{ ok, data | error }` e trata falhas da API e da validação.
 - ✅ Critério: com uma imagem de recibo real, retorna um objeto válido pelo schema. Com uma imagem aleatória, retorna um erro amigável.
