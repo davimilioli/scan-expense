@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { toJson, toText } from "@/lib/export";
 import type { Expense } from "@/lib/schemas/expense";
 
@@ -10,9 +11,6 @@ const VIEW_MODES = [
 ] as const;
 
 const COPY_FEEDBACK_DURATION_IN_MS = 2000;
-
-export const SECONDARY_BUTTON_CLASS_NAME =
-  "w-full rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50";
 
 type ViewMode = (typeof VIEW_MODES)[number]["value"];
 type CopyStatus = "idle" | "copied" | "failed";

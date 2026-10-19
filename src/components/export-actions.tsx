@@ -1,6 +1,7 @@
 "use client";
 
-import { ExportDialog, SECONDARY_BUTTON_CLASS_NAME } from "@/components/export-dialog";
+import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
+import { ExportDialog } from "@/components/export-dialog";
 import { downloadFile, getCsvFileName, toCsv } from "@/lib/export";
 import type { Expense } from "@/lib/schemas/expense";
 

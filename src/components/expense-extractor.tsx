@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { extractExpense } from "@/app/actions/extract-expense";
+import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { ExpenseCard } from "@/components/expense-card";
 import { ImageUploader } from "@/components/image-uploader";
 import { Panel } from "@/components/panel";
@@ -11,10 +12,13 @@ import { useExpenseStore, useStoreHydration } from "@/store/expense-store";
 export function ExpenseExtractor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Trocar a key recria o ImageUploader, limpando o preview
+  const [uploaderKey, setUploaderKey] = useState(0);
   const [isPending, startTransition] = useTransition();
 
   const hasHydrated = useStoreHydration();
   const addEntry = useExpenseStore((state) => state.addEntry);
+  const setActive = useExpenseStore((state) => state.setActive);
   const hasStorageError = useExpenseStore((state) => state.hasStorageError);
   const activeEntry = useExpenseStore((state) =>
     state.entries.find((entry) => entry.id === state.activeId),
@@ -23,6 +27,13 @@ export function ExpenseExtractor() {
   function handleFileChange(file: File | null) {
     setSelectedFile(file);
     setErrorMessage(null);
+  }
+
+  function startNewExtraction() {
+    setSelectedFile(null);
+    setErrorMessage(null);
+    setUploaderKey((currentKey) => currentKey + 1);
+    setActive(null);
   }
 
   function handleExtract() {
@@ -57,7 +68,7 @@ export function ExpenseExtractor() {
     <>
       <Panel title="Imagem">
         <div className="space-y-4">
-          <ImageUploader onFileChange={handleFileChange} />
+          <ImageUploader key={uploaderKey} onFileChange={handleFileChange} />
           <button
             type="button"
             onClick={handleExtract}
@@ -66,6 +77,16 @@ export function ExpenseExtractor() {
           >
             {isPending ? "Extraindo dados..." : "Extrair dados"}
           </button>
+          {hasHydrated && activeEntry && (
+            <button
+              type="button"
+              onClick={startNewExtraction}
+              disabled={isPending}
+              className={SECONDARY_BUTTON_CLASS_NAME}
+            >
+              Nova extração
+            </button>
+          )}
           {errorMessage && (
             <p role="alert" className="text-sm text-red-600">
               {errorMessage}

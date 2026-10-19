@@ -1,5 +1,5 @@
 import { ExpenseExtractor } from "@/components/expense-extractor";
-import { Panel } from "@/components/panel";
+import { HistoryList } from "@/components/history-list";
 
 export default function Home() {
   return (
@@ -17,9 +17,7 @@ export default function Home() {
         </main>
 
         <aside>
-          <Panel title="Histórico">
-            <p className="text-sm text-zinc-400">Nenhum recibo salvo.</p>
-          </Panel>
+          <HistoryList />
         </aside>
       </div>
     </div>

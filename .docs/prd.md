@@ -251,14 +251,15 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 6: Histórico na interface
 
-**T14. Componentes `HistoryList` e `HistoryItem`**
+**[x] T14. Componentes `HistoryList` e `HistoryItem`**
 - Lista com miniatura, estabelecimento, data e valor (BRL). Destaque da entrada ativa.
 - Clicar reabre a entrada no card. Excluir com confirmação. "Limpar histórico".
 - Estado vazio amigável.
 - ✅ Critério: é possível navegar entre as extrações salvas, editar, excluir e limpar.
 
-**T15. Fluxo "Nova extração"**
+**[x] T15. Fluxo "Nova extração"**
 - Botão para voltar ao estado inicial (limpa o upload e desmarca a entrada ativa) sem perder o histórico.
+- O botão aparece no painel "Imagem" quando há uma entrada aberta. O upload é limpo recriando o `ImageUploader` via `key`.
 - ✅ Critério: é possível fazer várias extrações seguidas.
 
 ### Fase 7: Acabamento
