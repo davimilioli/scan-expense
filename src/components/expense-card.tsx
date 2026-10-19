@@ -34,6 +34,12 @@ function toDraft(expense: Expense): ExpenseDraft {
   };
 }
 
+// Arredonda para centavos para evitar resíduos de ponto flutuante (ex: 0.1 + 0.2)
+function sumItemTotals(items: ItemDraft[]): number {
+  const sum = items.reduce((total, item) => total + item.total, 0);
+  return Math.round(sum * 100) / 100;
+}
+
 function validateDraft(draft: ExpenseDraft) {
   return expenseSchema.safeParse({
     ...draft,
@@ -57,7 +63,7 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
   }
 
   const totalAmount = parseDecimal(draft.totalAmount);
-  const itemsSum = draft.items.reduce((sum, item) => sum + item.total, 0);
+  const itemsSum = sumItemTotals(draft.items);
   const hasDivergence =
     draft.items.length > 0 &&
     Number.isFinite(totalAmount) &&
@@ -71,6 +77,17 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
 
     const nextValidation = validateDraft(nextDraft);
     if (nextValidation.success) updateExpense(entryId, nextValidation.data);
+  }
+
+  // O valor total acompanha a soma dos itens. Sem itens ou com algum total inválido, mantém o valor atual
+  function changeItems(items: ItemDraft[]) {
+    const nextItemsSum = sumItemTotals(items);
+    const shouldUpdateTotal = items.length > 0 && Number.isFinite(nextItemsSum);
+
+    changeDraft({
+      items,
+      totalAmount: shouldUpdateTotal ? String(nextItemsSum) : draft.totalAmount,
+    });
   }
 
   return (
@@ -121,7 +138,7 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
       <ExpenseItemsTable
         items={draft.items}
         errors={errors}
-        onItemsChange={(items) => changeDraft({ items })}
+        onItemsChange={changeItems}
       />
 
       {hasDivergence && (

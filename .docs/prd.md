@@ -234,6 +234,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T11. Componente `ExpenseItemsTable`**
 - Tabela editável de itens: adicionar e remover linhas, total da linha e aviso de divergência entre a soma dos itens e o Valor Total.
 - O total da linha é recalculado (quantidade × valor unitário) só quando um desses dois campos muda, para não apagar descontos lidos do recibo.
+- Ao adicionar, remover ou editar um item, o Valor Total passa a ser a soma dos itens. Quando a lista fica vazia, o valor atual é mantido.
 - Versão mobile: linhas empilhadas em cards.
 - ✅ Critério: é possível editar, adicionar e remover itens, e o aviso aparece quando os valores não batem.
 
