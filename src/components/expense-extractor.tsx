@@ -67,7 +67,7 @@ export function ExpenseExtractor() {
 
   return (
     <>
-      <Panel title="Imagem">
+      <Panel>
         <div className="space-y-4">
           <ImageUploader key={uploaderKey} onFileChange={handleFileChange} />
           <button
@@ -76,7 +76,7 @@ export function ExpenseExtractor() {
             disabled={!selectedFile || isPending}
             className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "Extraindo dados..." : "Extrair dados"}
+            {isPending ? "Extraindo..." : "Extrair"}
           </button>
           {hasHydrated && activeEntry && (
             <button
@@ -96,7 +96,7 @@ export function ExpenseExtractor() {
         </div>
       </Panel>
 
-      <Panel title="Dados extraídos">
+      <Panel>
         <div className="space-y-3">
           {isPending ? (
             <ExtractionSkeleton />
