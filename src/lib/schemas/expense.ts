@@ -13,17 +13,34 @@ export const categories = [
 ] as const;
 
 export const expenseItemSchema = z.object({
-  description: z.string().min(1).describe("Nome do produto ou serviço"),
-  quantity: z.number().positive().describe("Quantidade comprada"),
-  unitPrice: z.number().nonnegative().describe("Valor unitário em reais, número decimal"),
-  total: z.number().nonnegative().describe("Valor total da linha em reais, número decimal"),
+  description: z.string().min(1, "Informe a descrição").describe("Nome do produto ou serviço"),
+  quantity: z
+    .number("Informe a quantidade")
+    .positive("A quantidade deve ser maior que zero")
+    .describe("Quantidade comprada"),
+  unitPrice: z
+    .number("Informe o valor")
+    .nonnegative("O valor não pode ser negativo")
+    .describe("Valor unitário em reais, número decimal"),
+  total: z
+    .number("Informe o total")
+    .nonnegative("O total não pode ser negativo")
+    .describe("Valor total da linha em reais, número decimal"),
 });
 
 export const expenseSchema = z.object({
-  establishment: z.string().min(1).describe("Nome do estabelecimento ou do recebedor"),
-  date: z.iso.date().describe("Data da compra no formato YYYY-MM-DD"),
-  category: z.enum(categories).describe("Categoria que melhor descreve a despesa"),
-  totalAmount: z.number().nonnegative().describe("Valor total pago em reais, número decimal"),
+  establishment: z
+    .string()
+    .min(1, "Informe o estabelecimento")
+    .describe("Nome do estabelecimento ou do recebedor"),
+  date: z.iso.date("Informe uma data válida").describe("Data da compra no formato YYYY-MM-DD"),
+  category: z
+    .enum(categories, "Escolha uma categoria")
+    .describe("Categoria que melhor descreve a despesa"),
+  totalAmount: z
+    .number("Informe o valor total")
+    .nonnegative("O valor não pode ser negativo")
+    .describe("Valor total pago em reais, número decimal"),
   items: z
     .array(expenseItemSchema)
     .describe("Itens discriminados; lista vazia quando não houver itens, como em comprovantes Pix"),

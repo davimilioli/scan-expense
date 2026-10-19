@@ -77,7 +77,12 @@ export function ExpenseExtractor() {
       <Panel title="Dados extraídos">
         <div className="space-y-3">
           {hasHydrated && activeEntry ? (
-            <ExpenseResultView expense={activeEntry.expense} />
+            // A key recria o formulário quando outra entrada do histórico é aberta
+            <ExpenseResultView
+              key={activeEntry.id}
+              entryId={activeEntry.id}
+              expense={activeEntry.expense}
+            />
           ) : (
             <p className="text-sm text-zinc-400">
               {isPending ? "Lendo o recibo..." : "Nenhuma extração ainda."}

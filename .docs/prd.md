@@ -226,12 +226,14 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 ### Fase 4: Card editável
 
-**T10. Componente `ExpenseCard`**
+**[x] T10. Componente `ExpenseCard`**
 - Campos Estabelecimento, Data, Categoria e Valor Total ligados à entrada ativa do store, com validação Zod por campo.
+- Implementado como conteúdo da aba "Texto". O formulário mantém um rascunho local e só grava no store quando o rascunho inteiro é válido pelo `expenseSchema`. As mensagens de erro em pt-BR ficam no próprio schema.
 - ✅ Critério: editar um campo atualiza o store e o valor persiste após o reload.
 
-**T11. Componente `ExpenseItemsTable`**
+**[x] T11. Componente `ExpenseItemsTable`**
 - Tabela editável de itens: adicionar e remover linhas, total da linha e aviso de divergência entre a soma dos itens e o Valor Total.
+- O total da linha é recalculado (quantidade × valor unitário) só quando um desses dois campos muda, para não apagar descontos lidos do recibo.
 - Versão mobile: linhas empilhadas em cards.
 - ✅ Critério: é possível editar, adicionar e remover itens, e o aviso aparece quando os valores não batem.
 
