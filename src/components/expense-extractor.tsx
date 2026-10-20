@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { extractExpense } from "@/app/actions/extract-expense";
+import { useEffect, useState, useTransition } from "react";
+import { extractExpense, getRemainingExtractions } from "@/app/actions/extract-expense";
 import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { ExpenseCard } from "@/components/expense-card";
 import { ExtractionSkeleton } from "@/components/extraction-skeleton";
@@ -14,7 +14,9 @@ export function ExpenseExtractor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploaderKey, setUploaderKey] = useState(0);
+  const [remainingExtractions, setRemainingExtractions] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
+  const hasReachedLimit = remainingExtractions === 0;
 
   const hasHydrated = useStoreHydration();
   const addEntry = useExpenseStore((state) => state.addEntry);
@@ -23,6 +25,12 @@ export function ExpenseExtractor() {
   const activeEntry = useExpenseStore((state) =>
     state.entries.find((entry) => entry.id === state.activeId),
   );
+
+  useEffect(() => {
+    getRemainingExtractions()
+      .then(setRemainingExtractions)
+      .catch((error) => console.error("Falha ao consultar o limite de extrações:", error));
+  }, []);
 
   function handleFileChange(file: File | null) {
     setSelectedFile(file);
@@ -45,6 +53,9 @@ export function ExpenseExtractor() {
         const formData = new FormData();
         formData.append("image", await compressImage(selectedFile));
         const result = await extractExpense(formData);
+        if (result.remainingExtractions !== undefined) {
+          setRemainingExtractions(result.remainingExtractions);
+        }
 
         if (!result.ok) {
           setErrorMessage(result.error);
@@ -72,11 +83,18 @@ export function ExpenseExtractor() {
           <button
             type="button"
             onClick={handleExtract}
-            disabled={!selectedFile || isPending}
+            disabled={!selectedFile || isPending || hasReachedLimit}
             className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "Extraindo..." : "Extrair"}
           </button>
+          {remainingExtractions !== null && (
+            <p className="text-center text-xs text-zinc-500">
+              {hasReachedLimit
+                ? "Você atingiu o limite de extrações."
+                : `${remainingExtractions === 1 ? "Resta 1 extração" : `Restam ${remainingExtractions} extrações`}.`}
+            </p>
+          )}
           {hasHydrated && activeEntry && (
             <button
               type="button"

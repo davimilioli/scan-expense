@@ -277,6 +277,16 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - Validado com imagens **sintéticas** de cada cenário, com o mesmo schema, prompt e modelo da action. Todos os cenários extraíram os dados corretos (ou recusaram a imagem que não é recibo) entre 0,9s e 3,7s, sem precisar ajustar o prompt. Falta repetir com fotos reais.
 - ✅ Critério: extrações corretas ou falhas tratadas de forma amigável em todos os casos.
 
+### Fase 8: Limite de uso
+
+**[x] T18. Limite de 3 extrações por usuário**
+- Cada usuário pode fazer até 3 extrações. Depois disso, o botão "Extrair" fica bloqueado e a Server Action recusa o pedido sem chamar a IA.
+- Conta toda chamada que chega ao Gemini, inclusive falhas e imagens que não são recibos. Envios barrados pela validação de tipo ou tamanho não contam.
+- O contador fica num cookie `httpOnly` (`scan-expense-usage`, validade de 1 ano), assinado com HMAC-SHA256 usando `RATE_LIMIT_SECRET`. Um cookie adulterado ou inválido é tratado como limite atingido.
+- Limitação conhecida e aceita: limpar os cookies ou usar uma aba anônima reinicia a contagem. Para um bloqueio robusto seria preciso persistir no servidor (ex: IP + Upstash Redis).
+- A interface mostra quantas extrações restam (lidas por `getRemainingExtractions()` ao abrir a página) e o aviso de limite atingido.
+- ✅ Critério: a 4ª tentativa é recusada sem chamar a IA, e o contador sobrevive a um reload da página.
+
 ## 9. Riscos e mitigações
 
 | Risco | Mitigação |

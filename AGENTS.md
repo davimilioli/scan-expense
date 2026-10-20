@@ -19,7 +19,7 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 - Next.js 16 (App Router, código em `src/`, alias `@/*` → `src/*`) + React 19 + Tailwind CSS v4
 - Vercel AI SDK 7 (`ai`) + `@ai-sdk/google`, modelo `gemini-flash-lite-latest`
 - Zod 4 para validação e Zustand 5 (`persist`) para o estado
-- Chave da API em `GOOGLE_GENERATIVE_AI_API_KEY` (arquivo `.env`, que não é versionado)
+- Variáveis no arquivo `.env`, que não é versionado: `GOOGLE_GENERATIVE_AI_API_KEY` (chave do Gemini) e `RATE_LIMIT_SECRET` (chave que assina o cookie do limite de uso)
 
 ### Fluxo e arquivos principais
 
@@ -33,6 +33,7 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 ### Decisões que não são óbvias
 
 - **`generateObject` está descontinuado no AI SDK 7.** Use `generateText` + `Output.object({ schema })`.
+- **Limite de uso:** cada usuário pode fazer até 3 chamadas à IA (`src/lib/rate-limit.ts`). O contador fica num cookie `httpOnly` assinado com HMAC e é consumido antes de chamar o Gemini. Limpar os cookies reinicia a contagem, e essa limitação foi aceita. O `rate-limit.ts` usa `node:crypto` e `next/headers`, então só pode ser importado no servidor.
 - **Imagens que não são recibos:** a IA responde `{ isReceipt, expense | null }`, assim ela recusa a imagem em vez de inventar dados.
 - **Limite de tamanho:** o Server Action aceita até `5mb` (`experimental.serverActions.bodySizeLimit`). A imagem é comprimida no cliente antes do envio (lado maior até 1600px, JPEG).
 - **Campos numéricos do formulário:** ficam como texto no rascunho. `parseDecimal("")` retorna `NaN` para o Zod acusar o campo vazio.

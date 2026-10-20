@@ -4,6 +4,7 @@ import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { ACCEPTED_IMAGE_TYPES } from "@/lib/image";
+import { consumeExtraction, MAX_EXTRACTIONS, readRemainingExtractions } from "@/lib/rate-limit";
 import { expenseSchema, type Expense } from "@/lib/schemas/expense";
 
 const MODEL_ID = "gemini-flash-lite-latest";
@@ -25,8 +26,12 @@ const extractionSchema = z.object({
 });
 
 export type ExtractExpenseResult =
-  | { ok: true; data: Expense }
-  | { ok: false; error: string };
+  | { ok: true; data: Expense; remainingExtractions: number }
+  | { ok: false; error: string; remainingExtractions?: number };
+
+export async function getRemainingExtractions(): Promise<number> {
+  return readRemainingExtractions();
+}
 
 export async function extractExpense(formData: FormData): Promise<ExtractExpenseResult> {
   const image = formData.get("image");
@@ -38,7 +43,20 @@ export async function extractExpense(formData: FormData): Promise<ExtractExpense
     return { ok: false, error: "A imagem é grande demais. Tente uma foto menor." };
   }
 
+  let remainingExtractions: number | undefined;
+
   try {
+    const allowance = await consumeExtraction();
+    remainingExtractions = allowance.remainingExtractions;
+
+    if (!allowance.isAllowed) {
+      return {
+        ok: false,
+        error: `Você atingiu o limite de ${MAX_EXTRACTIONS} extrações.`,
+        remainingExtractions,
+      };
+    }
+
     const { output } = await generateText({
       model: google(MODEL_ID),
       system: SYSTEM_PROMPT,
@@ -59,12 +77,20 @@ export async function extractExpense(formData: FormData): Promise<ExtractExpense
     });
 
     if (!output.isReceipt || !output.expense) {
-      return { ok: false, error: "Não encontramos um recibo ou comprovante nesta imagem." };
+      return {
+        ok: false,
+        error: "Não encontramos um recibo ou comprovante nesta imagem.",
+        remainingExtractions,
+      };
     }
 
-    return { ok: true, data: output.expense };
+    return { ok: true, data: output.expense, remainingExtractions };
   } catch (error) {
     console.error("Falha ao extrair os dados do recibo:", error);
-    return { ok: false, error: "Não foi possível extrair os dados. Tente novamente." };
+    return {
+      ok: false,
+      error: "Não foi possível extrair os dados. Tente novamente.",
+      remainingExtractions,
+    };
   }
 }
