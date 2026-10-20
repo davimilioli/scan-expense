@@ -39,6 +39,7 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 - **Campos numéricos do formulário:** ficam como texto no rascunho. `parseDecimal("")` retorna `NaN` para o Zod acusar o campo vazio.
 - **Totais:** o total da linha só é recalculado quando a quantidade ou o valor unitário mudam, para preservar descontos lidos do recibo. O valor total acompanha a soma dos itens quando a lista é alterada.
 - **CSV para Excel pt-BR:** separador `;`, BOM UTF-8, vírgula decimal e data em dd/mm/aaaa.
+- **Ids no cliente:** não use `crypto.randomUUID()`. Ele só existe em contexto seguro (HTTPS ou `localhost`) e quebra quando o app é aberto pelo IP da rede, por exemplo no celular. O id das entradas usa `crypto.getRandomValues()`.
 - **`<dialog>`:** precisa de `m-auto`, porque o reset do Tailwind remove a margem que o centraliza.
 
 ### Convenções

@@ -12,6 +12,11 @@ import { Panel } from "@/components/panel";
 import { compressImage, createThumbnail } from "@/lib/image";
 import { useExpenseStore, useStoreHydration } from "@/store/expense-store";
 
+function createEntryId(): string {
+  const [randomValue] = crypto.getRandomValues(new Uint32Array(1));
+  return `${Date.now().toString(36)}-${randomValue.toString(36)}`;
+}
+
 export function ExpenseExtractor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -79,7 +84,7 @@ export function ExpenseExtractor() {
         }
 
         addEntry({
-          id: crypto.randomUUID(),
+          id: createEntryId(),
           createdAt: new Date().toISOString(),
           thumbnail: await createThumbnail(selectedFile),
           expense: result.data,
