@@ -104,8 +104,7 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-zinc-500">Itens</h3>
+      <div className="flex justify-end">
         <button type="button" onClick={openNewItem} className={PRIMARY_BUTTON_CLASS_NAME}>
           <Plus aria-hidden className="size-4" />
           Adicionar item
