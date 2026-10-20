@@ -263,6 +263,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T14. Componentes `HistoryList` e `HistoryItem`**
 - Lista com miniatura, estabelecimento, data e valor (BRL). Destaque da entrada ativa.
 - Clicar reabre a entrada no card. Excluir com confirmação. "Limpar histórico".
+- O painel de histórico (e o de dados extraídos) fica oculto enquanto não há dados. Sem histórico, a área principal ocupa a largura toda.
 - Ao abrir uma entrada pelo histórico, o upload atual é limpo (ação `openEntry` do store), para a imagem do painel não ficar diferente do recibo aberto.
 - Estado vazio amigável.
 - ✅ Critério: é possível navegar entre as extrações salvas, editar, excluir e limpar.

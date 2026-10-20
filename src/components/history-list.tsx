@@ -23,21 +23,11 @@ export function HistoryList() {
     clearHistory();
   }
 
-  if (!hasHydrated) {
-    return (
-      <Panel title="Histórico">
-        <p className="text-sm text-zinc-500">Carregando histórico...</p>
-      </Panel>
-    );
-  }
+  if (!hasHydrated || entries.length === 0) return null;
 
   return (
-    <Panel title="Histórico">
-      {entries.length === 0 ? (
-        <p className="text-sm text-zinc-500">
-          Nenhum recibo salvo ainda. As extrações aparecem aqui.
-        </p>
-      ) : (
+    <aside className="shrink-0 lg:w-80">
+      <Panel title="Histórico">
         <div className="space-y-4">
           <ul className="space-y-1">
             {entries.map((entry) => (
@@ -58,7 +48,7 @@ export function HistoryList() {
             Limpar histórico
           </button>
         </div>
-      )}
-    </Panel>
+      </Panel>
+    </aside>
   );
 }

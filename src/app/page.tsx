@@ -11,14 +11,12 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <main className="space-y-6">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <main className="min-w-0 flex-1 space-y-6">
           <ExpenseExtractor />
         </main>
 
-        <aside>
-          <HistoryList />
-        </aside>
+        <HistoryList />
       </div>
     </div>
   );
