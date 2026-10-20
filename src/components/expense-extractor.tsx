@@ -145,13 +145,13 @@ export function ExpenseExtractor() {
                   Você atingiu o limite de extrações
                 </p>
               )}
-              <div className="ml-auto flex gap-2">
-                <HistoryDialog />
+              <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+                <HistoryDialog triggerClassName="flex-1 sm:flex-none" />
                 <button
                   type="button"
                   onClick={startNewExtraction}
                   disabled={hasReachedLimit}
-                  className={PRIMARY_BUTTON_CLASS_NAME}
+                  className={`flex-1 sm:flex-none ${PRIMARY_BUTTON_CLASS_NAME}`}
                 >
                   <Plus aria-hidden className="size-4" />
                   Nova extração

@@ -5,7 +5,11 @@ import { useRef } from "react";
 import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { HistoryList } from "@/components/history-list";
 
-export function HistoryDialog() {
+interface HistoryDialogProps {
+  triggerClassName?: string;
+}
+
+export function HistoryDialog({ triggerClassName }: HistoryDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   function closeDialog() {
@@ -17,7 +21,7 @@ export function HistoryDialog() {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        className={SECONDARY_BUTTON_CLASS_NAME}
+        className={`${SECONDARY_BUTTON_CLASS_NAME} ${triggerClassName ?? ""}`}
       >
         <History aria-hidden className="size-4" />
         Histórico
