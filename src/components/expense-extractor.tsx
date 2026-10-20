@@ -25,6 +25,7 @@ export function ExpenseExtractor() {
   const activeEntry = useExpenseStore((state) =>
     state.entries.find((entry) => entry.id === state.activeId),
   );
+  const hasExtractedData = hasHydrated && activeEntry !== undefined;
   const historyOpenCount = useExpenseStore((state) => state.historyOpenCount);
   const [handledHistoryOpenCount, setHandledHistoryOpenCount] = useState(historyOpenCount);
 
@@ -106,7 +107,7 @@ export function ExpenseExtractor() {
                 : `${remainingExtractions === 1 ? "Resta 1 extração" : `Restam ${remainingExtractions} extrações`}.`}
             </p>
           )}
-          {hasHydrated && activeEntry && (
+          {hasExtractedData && (
             <button
               type="button"
               onClick={startNewExtraction}
@@ -124,27 +125,29 @@ export function ExpenseExtractor() {
         </div>
       </Panel>
 
-      <Panel>
-        <div className="space-y-3">
-          {isPending ? (
-            <ExtractionSkeleton />
-          ) : hasHydrated && activeEntry ? (
-            <ExpenseCard
-              key={activeEntry.id}
-              entryId={activeEntry.id}
-              expense={activeEntry.expense}
-            />
-          ) : (
-            <p className="text-sm text-zinc-500">Nenhuma extração ainda.</p>
-          )}
-          {hasStorageError && (
-            <p role="alert" className="text-sm text-amber-700">
-              O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
-              entradas antigas do histórico.
-            </p>
-          )}
-        </div>
-      </Panel>
+      {(isPending || hasExtractedData || hasStorageError) && (
+        <Panel>
+          <div className="space-y-3">
+            {isPending ? (
+              <ExtractionSkeleton />
+            ) : (
+              hasExtractedData && (
+                <ExpenseCard
+                  key={activeEntry.id}
+                  entryId={activeEntry.id}
+                  expense={activeEntry.expense}
+                />
+              )
+            )}
+            {hasStorageError && (
+              <p role="alert" className="text-sm text-amber-700">
+                O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
+                entradas antigas do histórico.
+              </p>
+            )}
+          </div>
+        </Panel>
+      )}
     </>
   );
 }
