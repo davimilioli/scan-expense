@@ -13,7 +13,6 @@ import { useExpenseStore, useStoreHydration } from "@/store/expense-store";
 export function ExpenseExtractor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // Trocar a key recria o ImageUploader, limpando o preview
   const [uploaderKey, setUploaderKey] = useState(0);
   const [isPending, startTransition] = useTransition();
 
@@ -101,7 +100,6 @@ export function ExpenseExtractor() {
           {isPending ? (
             <ExtractionSkeleton />
           ) : hasHydrated && activeEntry ? (
-            // A key recria o formulário quando outra entrada do histórico é aberta
             <ExpenseCard
               key={activeEntry.id}
               entryId={activeEntry.id}

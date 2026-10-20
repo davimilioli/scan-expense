@@ -66,7 +66,6 @@ export function ExportDialog({ expense, isDisabled }: ExportDialogProps) {
         Ver e copiar resultado
       </button>
 
-      {/* m-auto: o reset do Tailwind zera a margem que centraliza o <dialog> */}
       <dialog
         ref={dialogRef}
         aria-label="Resultado da extração"

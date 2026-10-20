@@ -15,8 +15,6 @@ interface ExpenseState {
   setActive: (id: string | null) => void;
 }
 
-// Se o localStorage encher (QuotaExceededError), sinaliza no estado em vez de quebrar a página.
-// Só altera a flag quando ela muda, porque cada setState dispara uma nova gravação do persist.
 const safeLocalStorage: StateStorage = {
   getItem: (name) => localStorage.getItem(name),
   setItem: (name, value) => {
@@ -57,7 +55,6 @@ export const useExpenseStore = create<ExpenseState>()(
       name: "scan-expense-history",
       storage: createJSONStorage(() => safeLocalStorage),
       partialize: (state) => ({ entries: state.entries, activeId: state.activeId }),
-      // A leitura do localStorage é feita só no cliente (useStoreHydration) para evitar erro de hidratação
       skipHydration: true,
       onRehydrateStorage: () => () => useExpenseStore.setState({ hasHydrated: true }),
     },

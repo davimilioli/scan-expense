@@ -7,7 +7,6 @@ import { ACCEPTED_IMAGE_TYPES } from "@/lib/image";
 import { expenseSchema, type Expense } from "@/lib/schemas/expense";
 
 const MODEL_ID = "gemini-flash-lite-latest";
-// Mesmo valor do `bodySizeLimit` no next.config.ts
 const MAX_IMAGE_SIZE_IN_BYTES = 5 * 1024 * 1024;
 
 const SYSTEM_PROMPT = `Você extrai dados de recibos, notas fiscais e comprovantes Pix brasileiros.
@@ -18,7 +17,6 @@ Regras:
 - Comprovantes Pix e recibos sem itens discriminados têm a lista de itens vazia.
 - Se a imagem não for um recibo, nota fiscal ou comprovante de pagamento, responda isReceipt false e expense null.`;
 
-// O campo isReceipt deixa a IA sinalizar imagens que não são recibos sem inventar dados
 const extractionSchema = z.object({
   isReceipt: z
     .boolean()

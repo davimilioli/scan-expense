@@ -27,7 +27,6 @@ export function ImageUploader({ onFileChange }: ImageUploaderProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Libera a URL do preview anterior quando ele é trocado ou removido
   useEffect(() => {
     if (!previewUrl) return;
     return () => URL.revokeObjectURL(previewUrl);
@@ -46,7 +45,6 @@ export function ImageUploader({ onFileChange }: ImageUploaderProps) {
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     selectFile(event.target.files?.[0]);
-    // Limpa o valor para permitir escolher o mesmo arquivo de novo
     event.target.value = "";
   }
 
@@ -118,7 +116,6 @@ export function ImageUploader({ onFileChange }: ImageUploaderProps) {
           onDrop={handleDrop}
           className={`flex h-48 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500 ${dropZoneClassName}`}
         >
-          {/* Sem eventos nos filhos para o dragleave não disparar ao passar por cima do texto */}
           <span className="pointer-events-none text-sm font-medium">
             Arraste a imagem aqui ou clique para selecionar
           </span>

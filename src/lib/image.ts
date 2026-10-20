@@ -16,7 +16,6 @@ async function drawResizedImage(file: File, maxSide: number): Promise<HTMLCanvas
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Não foi possível processar a imagem.");
 
-  // Fundo branco para PNGs transparentes não ficarem pretos ao virar JPEG
   context.fillStyle = "#ffffff";
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);

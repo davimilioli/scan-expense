@@ -1,7 +1,6 @@
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { formatCurrency, parseDecimal } from "@/lib/format";
 
-// Quantidade e valor ficam como texto enquanto o usuário digita; o total é calculado
 export interface ItemDraft {
   description: string;
   quantity: string;
@@ -23,7 +22,6 @@ function calculateTotal(quantity: string, unitPrice: string): number {
 }
 
 export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItemsTableProps) {
-  // O total só é recalculado quando quantidade ou valor mudam, para preservar descontos lidos do recibo
   function changeItem(index: number, changes: Partial<ItemDraft>) {
     onItemsChange(
       items.map((item, itemIndex) => {

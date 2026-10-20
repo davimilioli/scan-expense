@@ -8,7 +8,6 @@ import { formatCurrency, parseDecimal } from "@/lib/format";
 import { categories, expenseSchema, type Category, type Expense } from "@/lib/schemas/expense";
 import { useExpenseStore } from "@/store/expense-store";
 
-// Rascunho do formulário: números ficam como texto para o usuário poder digitar livremente
 interface ExpenseDraft {
   establishment: string;
   date: string;
@@ -34,7 +33,6 @@ function toDraft(expense: Expense): ExpenseDraft {
   };
 }
 
-// Arredonda para centavos para evitar resíduos de ponto flutuante (ex: 0.1 + 0.2)
 function sumItemTotals(items: ItemDraft[]): number {
   const sum = items.reduce((total, item) => total + item.total, 0);
   return Math.round(sum * 100) / 100;
@@ -70,7 +68,6 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
     Number.isFinite(itemsSum) &&
     Math.abs(itemsSum - totalAmount) >= 0.01;
 
-  // Só grava no histórico quando o rascunho inteiro é válido
   function changeDraft(changes: Partial<ExpenseDraft>) {
     const nextDraft = { ...draft, ...changes };
     setDraft(nextDraft);
@@ -79,7 +76,6 @@ export function ExpenseCard({ entryId, expense }: ExpenseCardProps) {
     if (nextValidation.success) updateExpense(entryId, nextValidation.data);
   }
 
-  // O valor total acompanha a soma dos itens. Sem itens ou com algum total inválido, mantém o valor atual
   function changeItems(items: ItemDraft[]) {
     const nextItemsSum = sumItemTotals(items);
     const shouldUpdateTotal = items.length > 0 && Number.isFinite(nextItemsSum);

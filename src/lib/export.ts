@@ -23,9 +23,8 @@ export function toText(expense: Expense): string {
   return [...summary, "", "Itens:", ...items].join("\n");
 }
 
-// Excel em pt-BR espera ";" como separador e vírgula decimal; o BOM garante os acentos em UTF-8
 const CSV_SEPARATOR = ";";
-const CSV_BOM = "﻿";
+const CSV_BOM = "\uFEFF";
 const CSV_HEADER = [
   "estabelecimento",
   "data",
@@ -54,7 +53,6 @@ export function toCsv(expense: Expense): string {
     formatCsvNumber(expense.totalAmount),
   ];
 
-  // Sem itens, gera uma única linha com as colunas de item vazias
   const itemColumns =
     expense.items.length === 0
       ? [["", "", "", ""]]

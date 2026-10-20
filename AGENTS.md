@@ -42,7 +42,8 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 
 ### Convenções
 
-- Interface, mensagens e comentários em português. Valores em BRL.
+- Interface e mensagens em português. Valores em BRL.
+- Não escreva comentários no código. As decisões não óbvias ficam registradas nesta seção e no PRD.
 - Código simples e enxuto. Nomes por extenso, sem `_` em callbacks (`.map((item) => ...)`).
 - Componentes em `src/components` (arquivos em kebab-case, props em `interface`).
 - Classes Tailwind repetidas viram constante ou componente (`INPUT_CLASS_NAME`, `SECONDARY_BUTTON_CLASS_NAME`, `Panel`, `FormField`).
