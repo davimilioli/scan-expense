@@ -35,6 +35,7 @@ export function ExpenseExtractor() {
   const latestEntry = useExpenseStore((state) => state.entries[0]);
   const displayedEntry = activeEntry ?? (hasReachedLimit ? latestEntry : undefined);
   const hasExtractedData = hasHydrated && displayedEntry !== undefined;
+  const hasHistory = hasHydrated && latestEntry !== undefined;
   const historyOpenCount = useExpenseStore((state) => state.historyOpenCount);
   const [handledHistoryOpenCount, setHandledHistoryOpenCount] = useState(historyOpenCount);
 
@@ -123,7 +124,7 @@ export function ExpenseExtractor() {
             >
               Extrair
             </button>
-            <HistoryDialog />
+            {hasHistory && <HistoryDialog />}
           </div>
           {errorMessage && (
             <p role="alert" className="text-sm text-red-600">
