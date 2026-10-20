@@ -9,7 +9,7 @@ export function HistoryList() {
   const hasHydrated = useStoreHydration();
   const entries = useExpenseStore((state) => state.entries);
   const activeId = useExpenseStore((state) => state.activeId);
-  const setActive = useExpenseStore((state) => state.setActive);
+  const openEntry = useExpenseStore((state) => state.openEntry);
   const removeEntry = useExpenseStore((state) => state.removeEntry);
   const clearHistory = useExpenseStore((state) => state.clearHistory);
 
@@ -45,7 +45,7 @@ export function HistoryList() {
                 key={entry.id}
                 entry={entry}
                 isActive={entry.id === activeId}
-                onSelect={() => setActive(entry.id)}
+                onSelect={() => openEntry(entry.id)}
                 onRemove={() => handleRemove(entry)}
               />
             ))}

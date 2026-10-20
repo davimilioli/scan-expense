@@ -25,6 +25,13 @@ export function ExpenseExtractor() {
   const activeEntry = useExpenseStore((state) =>
     state.entries.find((entry) => entry.id === state.activeId),
   );
+  const historyOpenCount = useExpenseStore((state) => state.historyOpenCount);
+  const [handledHistoryOpenCount, setHandledHistoryOpenCount] = useState(historyOpenCount);
+
+  if (historyOpenCount !== handledHistoryOpenCount) {
+    setHandledHistoryOpenCount(historyOpenCount);
+    clearUpload();
+  }
 
   useEffect(() => {
     getRemainingExtractions()
@@ -37,10 +44,14 @@ export function ExpenseExtractor() {
     setErrorMessage(null);
   }
 
-  function startNewExtraction() {
+  function clearUpload() {
     setSelectedFile(null);
     setErrorMessage(null);
     setUploaderKey((currentKey) => currentKey + 1);
+  }
+
+  function startNewExtraction() {
+    clearUpload();
     setActive(null);
   }
 

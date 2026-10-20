@@ -15,7 +15,7 @@ interface ExpenseItemsTableProps {
 }
 
 const NEW_ITEM: ItemDraft = { description: "", quantity: "1", unitPrice: "0", total: 0 };
-const ROW_GRID_CLASS_NAME = "md:grid-cols-[1fr_4.5rem_6.5rem_6rem_4.5rem]";
+const ROW_GRID_CLASS_NAME = "md:grid-cols-[1fr_6.5rem_7.5rem_6rem_4.5rem]";
 
 function calculateTotal(quantity: string, unitPrice: string): number {
   return Math.round(parseDecimal(quantity) * parseDecimal(unitPrice) * 100) / 100;

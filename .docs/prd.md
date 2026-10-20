@@ -26,12 +26,12 @@ Aplicação web de tela única em que o usuário envia a imagem de um recibo, no
 | Framework | Next.js 16 (App Router) + React 19, já configurado em `src/app` |
 | Estilização | Tailwind CSS v4, já configurado |
 | Componentes | Todos em `src/components` |
-| IA | Vercel AI SDK (`ai`) + `@ai-sdk/google` (Gemini Flash, com visão) |
-| Saída estruturada | `generateObject` com schema Zod. Se a versão instalada do AI SDK tiver descontinuado o `generateObject`, usar o equivalente indicado na documentação (`generateText` + `Output.object`) |
+| IA | Vercel AI SDK (`ai`) + `@ai-sdk/google`, modelo `gemini-flash-lite-latest` (com visão) |
+| Saída estruturada | `generateText` + `Output.object` com schema Zod (o `generateObject` está descontinuado no AI SDK 7) |
 | Validação | `zod`: um único schema compartilhado entre a IA, o formulário e o store |
 | Estado + persistência | `zustand` com o middleware `persist` (localStorage) |
 | Comunicação com a IA | Server Action (`'use server'`). A chave da API fica só no servidor |
-| Chave da API | `GOOGLE_GENERATIVE_AI_API_KEY` em `.env.local` |
+| Variáveis de ambiente | `GOOGLE_GENERATIVE_AI_API_KEY` (chave do Gemini) e `RATE_LIMIT_SECRET` (assinatura do cookie de limite de uso), no arquivo `.env` |
 | Idioma / moeda | Interface em pt-BR, valores em BRL (`Intl.NumberFormat('pt-BR', { currency: 'BRL' })`) |
 
 > Antes de escrever código, ler o guia correspondente em `node_modules/next/dist/docs/` (ver `AGENTS.md`). Em especial: `01-app/02-guides/server-actions.md` e `01-app/03-api-reference/05-config/01-next-config-js/serverActions.md`.
@@ -129,7 +129,7 @@ type HistoryEntry = {
 - **Segurança**: chave da API só no servidor e validação da entrada dentro do Server Action.
 - **Desempenho**: compressão da imagem no cliente. Meta de extração abaixo de ~5s em condições normais.
 
-## 6. Estrutura de pastas proposta
+## 6. Estrutura de pastas
 
 ```
 src/
@@ -140,17 +140,24 @@ src/
     page.tsx
     globals.css
   components/
-    image-uploader.tsx
+    button-styles.ts          # classes de botão compartilhadas
     expense-card.tsx
+    expense-extractor.tsx     # orquestra upload, extração e card
     expense-items-table.tsx
     export-actions.tsx
-    history-list.tsx
+    export-dialog.tsx         # modal com abas Texto/JSON
+    extraction-skeleton.tsx
+    form-field.tsx
     history-item.tsx
+    history-list.tsx
+    image-uploader.tsx
+    panel.tsx
   lib/
     schemas/expense.ts
     image.ts                  # compressão + miniatura (canvas)
-    export.ts                 # toJson, toCsv, download
+    export.ts                 # toText, toJson, toCsv, download
     format.ts                 # formatação BRL/data
+    rate-limit.ts             # limite de uso com cookie assinado
   store/
     expense-store.ts          # zustand + persist
 ```
@@ -160,7 +167,7 @@ src/
 1. O usuário arrasta ou seleciona uma imagem → preview imediato.
 2. O cliente comprime a imagem e gera a miniatura.
 3. O cliente chama o Server Action `extractExpense(formData)` → carregamento visível.
-4. O servidor valida a entrada, chama o Gemini (`generateObject` + `expenseSchema`) e retorna os dados.
+4. O servidor valida a entrada, consome uma das extrações do limite, chama o Gemini (`generateText` + `Output.object` com o `expenseSchema`) e retorna os dados.
 5. O cliente cria uma entrada no histórico (`id`, miniatura, dados), que passa a ser a entrada ativa.
 6. O card editável é renderizado. As edições atualizam a entrada no store.
 7. O usuário clica em "Copiar JSON" ou "Exportar CSV".
@@ -203,12 +210,13 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 **[x] T6. Server Action `extractExpense`**
 - Implementado com `generateText` + `Output.object` (o `generateObject` está descontinuado no AI SDK 7) e o modelo `gemini-flash-lite-latest` (o `gemini-flash-latest` estava sobrecarregado). A IA também retorna `isReceipt` para sinalizar imagens que não são recibos.
-- `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateObject` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, itens vazios para comprovante Pix, erro quando não for recibo).
+- `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateText` + `Output.object` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, itens vazios para comprovante Pix, erro quando não for recibo).
 - Retorna um resultado discriminado `{ ok, data | error }` e trata falhas da API e da validação.
 - ✅ Critério: com uma imagem de recibo real, retorna um objeto válido pelo schema. Com uma imagem aleatória, retorna um erro amigável.
 
-**T7. Integrar upload e extração**
+**[x] T7. Integrar upload e extração**
 - Botão "Extrair dados", estado de carregamento (`useTransition` ou `useActionState`, conforme a documentação local) e exibição do erro.
+- Implementado com `useTransition`. Fluxo ponta a ponta confirmado no navegador com fotos reais de cupons fiscais.
 - ✅ Critério: o fluxo ponta a ponta mostra o JSON extraído (ainda sem o card) na tela.
 
 ### Fase 3: Estado e histórico
@@ -255,6 +263,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T14. Componentes `HistoryList` e `HistoryItem`**
 - Lista com miniatura, estabelecimento, data e valor (BRL). Destaque da entrada ativa.
 - Clicar reabre a entrada no card. Excluir com confirmação. "Limpar histórico".
+- Ao abrir uma entrada pelo histórico, o upload atual é limpo (ação `openEntry` do store), para a imagem do painel não ficar diferente do recibo aberto.
 - Estado vazio amigável.
 - ✅ Critério: é possível navegar entre as extrações salvas, editar, excluir e limpar.
 

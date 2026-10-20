@@ -8,7 +8,9 @@ interface ExpenseState {
   activeId: string | null;
   hasHydrated: boolean;
   hasStorageError: boolean;
+  historyOpenCount: number;
   addEntry: (entry: HistoryEntry) => void;
+  openEntry: (id: string) => void;
   updateExpense: (id: string, expense: Expense) => void;
   removeEntry: (id: string) => void;
   clearHistory: () => void;
@@ -37,8 +39,11 @@ export const useExpenseStore = create<ExpenseState>()(
       activeId: null,
       hasHydrated: false,
       hasStorageError: false,
+      historyOpenCount: 0,
       addEntry: (entry) =>
         set((state) => ({ entries: [entry, ...state.entries], activeId: entry.id })),
+      openEntry: (id) =>
+        set((state) => ({ activeId: id, historyOpenCount: state.historyOpenCount + 1 })),
       updateExpense: (id, expense) =>
         set((state) => ({
           entries: state.entries.map((entry) => (entry.id === id ? { ...entry, expense } : entry)),
