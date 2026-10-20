@@ -5,11 +5,21 @@ import { ExpenseItemsTable, toItemValues, type ItemDraft } from "@/components/ex
 import { ExportActions } from "@/components/export-actions";
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { Panel } from "@/components/panel";
+import { PixDetailsFields } from "@/components/pix-details-fields";
 import { formatCurrency, parseDecimal } from "@/lib/format";
-import { categories, expenseFormSchema, type Category, type Expense } from "@/lib/schemas/expense";
+import {
+  categories,
+  expenseFormSchema,
+  type Category,
+  type DocumentType,
+  type Expense,
+  type PixDetails,
+} from "@/lib/schemas/expense";
 import { useExpenseStore } from "@/store/expense-store";
 
 interface ExpenseDraft {
+  documentType: DocumentType;
+  pix: PixDetails | null;
   establishment: string;
   date: string;
   category: Category;
@@ -30,7 +40,6 @@ function toDraft(expense: Expense): ExpenseDraft {
     totalAmount: String(expense.totalAmount),
     items: expense.items.map((item) => ({
       ...item,
-      unit: item.unit ?? (Number.isInteger(item.quantity) ? "un" : "kg"),
       quantity: String(item.quantity),
       unitPrice: String(item.unitPrice),
     })),
@@ -49,6 +58,7 @@ function sumItemTotals(items: ItemDraft[]): number {
 function validateDraft(draft: ExpenseDraft) {
   return expenseFormSchema.safeParse({
     ...draft,
+    establishment: draft.pix ? draft.pix.receiver.name : draft.establishment,
     totalAmount: parseDecimal(draft.totalAmount),
     items: draft.items.map(toItemValues),
   });
@@ -57,6 +67,7 @@ function validateDraft(draft: ExpenseDraft) {
 export function ExpenseCard({ entryId, expense, actions, remainingExtractions }: ExpenseCardProps) {
   const updateExpense = useExpenseStore((state) => state.updateExpense);
   const [draft, setDraft] = useState(() => toDraft(expense));
+  const pix = draft.documentType === "pix" ? draft.pix : null;
 
   const validation = validateDraft(draft);
   const errors: Record<string, string> = {};
@@ -72,11 +83,21 @@ export function ExpenseCard({ entryId, expense, actions, remainingExtractions }:
     Number.isFinite(itemsSum) &&
     Math.abs(itemsSum - totalAmount) >= 0.01;
 
+  const documentRows = pix
+    ? [
+        { label: "Tipo", value: "Comprovante Pix" },
+        { label: "Valor", value: formatAmount(totalAmount) },
+        { label: "Quem enviou", value: pix.sender.name || "—" },
+        { label: "Quem recebeu", value: pix.receiver.name || "—" },
+      ]
+    : [
+        { label: "Itens", value: String(draft.items.length) },
+        { label: "Soma dos itens", value: formatAmount(itemsSum) },
+        { label: "Valor total", value: formatAmount(totalAmount) },
+        ...(hasDivergence ? [{ label: "Diferença", value: formatAmount(Math.abs(itemsSum - totalAmount)) }] : []),
+      ];
   const summaryRows = [
-    { label: "Itens", value: String(draft.items.length) },
-    { label: "Soma dos itens", value: formatAmount(itemsSum) },
-    { label: "Valor total", value: formatAmount(totalAmount) },
-    ...(hasDivergence ? [{ label: "Diferença", value: formatAmount(Math.abs(itemsSum - totalAmount)) }] : []),
+    ...documentRows,
     ...(remainingExtractions === null ? [] : [{ label: "Créditos disponíveis", value: String(remainingExtractions) }]),
   ];
 
@@ -98,59 +119,89 @@ export function ExpenseCard({ entryId, expense, actions, remainingExtractions }:
     });
   }
 
+  const dateField = (
+    <FormField label="Data" error={errors.date}>
+      <input
+        type="date"
+        value={draft.date}
+        onChange={(event) => changeDraft({ date: event.target.value })}
+        className={INPUT_CLASS_NAME}
+      />
+    </FormField>
+  );
+  const categoryField = (
+    <FormField label="Categoria" error={errors.category}>
+      <select
+        value={draft.category}
+        onChange={(event) => changeDraft({ category: event.target.value as Category })}
+        className={INPUT_CLASS_NAME}
+      >
+        {categories.map((category) => (
+          <option key={category} value={category}>
+            {category}
+          </option>
+        ))}
+      </select>
+    </FormField>
+  );
+  const amountField = (
+    <FormField label={pix ? "Valor (R$)" : "Valor total (R$)"} error={errors.totalAmount}>
+      <input
+        type="number"
+        inputMode="decimal"
+        step="any"
+        min="0"
+        value={draft.totalAmount}
+        onChange={(event) => changeDraft({ totalAmount: event.target.value })}
+        className={INPUT_CLASS_NAME}
+      />
+    </FormField>
+  );
+
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[1fr_17rem]">
       <div className="min-w-0 space-y-4">
         <Panel>
           <div className="space-y-6">
             {actions}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="Estabelecimento" error={errors.establishment}>
-                <input
-                  type="text"
-                  value={draft.establishment}
-                  onChange={(event) => changeDraft({ establishment: event.target.value })}
-                  className={INPUT_CLASS_NAME}
-                />
-              </FormField>
-              <FormField label="Data" error={errors.date}>
-                <input
-                  type="date"
-                  value={draft.date}
-                  onChange={(event) => changeDraft({ date: event.target.value })}
-                  className={INPUT_CLASS_NAME}
-                />
-              </FormField>
-              <FormField label="Categoria" error={errors.category}>
-                <select
-                  value={draft.category}
-                  onChange={(event) => changeDraft({ category: event.target.value as Category })}
-                  className={INPUT_CLASS_NAME}
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-              <FormField label="Valor total (R$)" error={errors.totalAmount}>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min="0"
-                  value={draft.totalAmount}
-                  onChange={(event) => changeDraft({ totalAmount: event.target.value })}
-                  className={INPUT_CLASS_NAME}
-                />
-              </FormField>
-            </div>
+            {pix ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {amountField}
+                {categoryField}
+                {dateField}
+                <FormField label="Horário">
+                  <input
+                    type="time"
+                    value={pix.time}
+                    onChange={(event) => changeDraft({ pix: { ...pix, time: event.target.value } })}
+                    className={INPUT_CLASS_NAME}
+                  />
+                </FormField>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField label="Estabelecimento" error={errors.establishment}>
+                  <input
+                    type="text"
+                    value={draft.establishment}
+                    onChange={(event) => changeDraft({ establishment: event.target.value })}
+                    className={INPUT_CLASS_NAME}
+                  />
+                </FormField>
+                {dateField}
+                {categoryField}
+                {amountField}
+              </div>
+            )}
           </div>
         </Panel>
 
         <Panel>
-          <ExpenseItemsTable items={draft.items} errors={errors} onItemsChange={changeItems} />
+          {pix ? (
+            <PixDetailsFields pix={pix} errors={errors} onChange={(nextPix) => changeDraft({ pix: nextPix })} />
+          ) : (
+            <ExpenseItemsTable items={draft.items} errors={errors} onItemsChange={changeItems} />
+          )}
         </Panel>
       </div>
 
@@ -159,8 +210,8 @@ export function ExpenseCard({ entryId, expense, actions, remainingExtractions }:
           <dl className="space-y-2 text-sm">
             {summaryRows.map((row) => (
               <div key={row.label} className="flex justify-between gap-4">
-                <dt className="text-zinc-500">{row.label}</dt>
-                <dd className="font-medium">{row.value}</dd>
+                <dt className="shrink-0 text-zinc-500">{row.label}</dt>
+                <dd className="min-w-0 truncate text-right font-medium">{row.value}</dd>
               </div>
             ))}
           </dl>

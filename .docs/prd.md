@@ -213,7 +213,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T6. Server Action `extractExpense`**
 - Implementado com `generateText` + `Output.object` (o `generateObject` está descontinuado no AI SDK 7) e o modelo `gemini-flash-lite-latest` (o `gemini-flash-latest` estava sobrecarregado). A IA também retorna `isReceipt` para sinalizar imagens que não são recibos.
 - `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateText` + `Output.object` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, erro quando não for recibo).
-- Atualizado: a IA só aceita recibos, notas e cupons com pelo menos um item com nome e valor. Comprovantes Pix, transferências e recibos só com o total são recusados, e a action também recusa resultados sem itens. Itens sem quantidade viram 1 unidade.
+- Atualizado: a IA aceita dois tipos de documento. Recibos, notas e cupons com pelo menos um item com nome e valor (itens sem quantidade viram 1 unidade), e comprovantes Pix com valor e recebedor. TED/DOC, boletos, extratos e recibos só com o total são recusados, e a action reforça a regra (`isAcceptedDocument`).
 - Retorna um resultado discriminado `{ ok, data | error }` e trata falhas da API e da validação.
 - ✅ Critério: com uma imagem de recibo real, retorna um objeto válido pelo schema. Com uma imagem aleatória, retorna um erro amigável.
 
@@ -303,6 +303,15 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - A interface mostra quantas extrações restam (lidas por `getRemainingExtractions()` ao abrir a página) e o aviso de limite atingido.
 - Com o limite atingido, a tela mostra o último recibo extraído (ou o que estiver aberto pelo histórico) e "Nova extração" fica desabilitado. Sem nenhum recibo salvo, aparece o upload com "Extrair" desabilitado.
 - ✅ Critério: a 4ª tentativa é recusada sem chamar a IA, e o contador sobrevive a um reload da página.
+
+### Fase 9: Comprovantes Pix
+
+**[x] T19. Layout próprio para comprovantes Pix**
+- `expenseSchema` ganhou `documentType` (`receipt` ou `pix`) e `pix` (pagador e recebedor com nome, CPF/CNPJ e instituição, chave Pix, ID da transação e horário).
+- Layout do Pix: painel com valor, categoria, data e horário. Painel "Quem enviou" e "Quem recebeu", com chave Pix e ID da transação, no lugar da lista de itens. O resumo mostra tipo, valor, pagador e recebedor.
+- Num Pix, `establishment` acompanha o nome do recebedor e `items` fica vazio. Exportação própria em texto e CSV (colunas `tipo`, `data`, `horario`, `pagador_*`, `recebedor_*`, `chave_pix`, `id_transacao`). O histórico mostra "Pix ·".
+- O histórico salvo foi migrado (versão 1 do `persist`).
+- ✅ Critério: um comprovante Pix abre no layout próprio, editável, com exportação correta. Recibos antigos continuam abrindo no layout de recibo.
 
 ## 9. Riscos e mitigações
 

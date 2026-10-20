@@ -10,7 +10,7 @@ interface HistoryItemProps {
 }
 
 export function HistoryItem({ entry, isActive, onSelect, onRemove }: HistoryItemProps) {
-  const { establishment, date, totalAmount } = entry.expense;
+  const { documentType, establishment, date, totalAmount } = entry.expense;
 
   return (
     <li
@@ -35,6 +35,7 @@ export function HistoryItem({ entry, isActive, onSelect, onRemove }: HistoryItem
         <span className="min-w-0">
           <span className="block truncate text-sm font-medium">{establishment}</span>
           <span className="block text-xs text-zinc-500">
+            {documentType === "pix" && "Pix · "}
             {formatDate(date)} · {formatCurrency(totalAmount)}
           </span>
         </span>

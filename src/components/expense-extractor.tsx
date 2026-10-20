@@ -105,9 +105,9 @@ export function ExpenseExtractor() {
         <header className="mx-auto max-w-xl space-y-2 text-center">
           <h1 className="text-3xl font-semibold">Scan Expense</h1>
           <p className="text-sm text-zinc-500">
-            Envie a foto de um recibo, nota fiscal ou cupom fiscal e a IA extrai o
-            estabelecimento, a data, a categoria, o valor total e os itens da compra. Depois é
-            só revisar os dados e exportar em CSV ou JSON.
+            Envie a foto de um recibo, nota fiscal, cupom ou comprovante Pix e a IA extrai os
+            dados: estabelecimento, data, valor e itens da compra, ou quem enviou e quem recebeu
+            o Pix. Depois é só revisar e exportar em CSV ou JSON.
           </p>
         </header>
       )}

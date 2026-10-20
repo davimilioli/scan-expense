@@ -11,28 +11,42 @@ const MODEL_ID = "gemini-flash-lite-latest";
 const MAX_IMAGE_SIZE_IN_BYTES = 5 * 1024 * 1024;
 
 const NOT_A_RECEIPT_ERROR =
-  "Não encontramos um recibo com itens nesta imagem. Envie a foto de um recibo, nota fiscal ou cupom com o nome e o valor dos itens.";
+  "Não encontramos um recibo com itens ou um comprovante Pix nesta imagem. Envie a foto de um recibo, nota fiscal, cupom ou comprovante Pix.";
 
-const SYSTEM_PROMPT = `Você extrai dados de recibos, notas fiscais e cupons fiscais brasileiros.
-Aceite somente imagens de recibos, notas fiscais ou cupons que listem pelo menos um item com nome e valor.
+const SYSTEM_PROMPT = `Você extrai dados de documentos de despesa brasileiros. Aceite somente dois tipos:
+1. documentType "receipt": recibos, notas fiscais ou cupons que listem pelo menos um item com nome e valor.
+   Um recibo de serviço com a descrição do serviço e o valor conta como um item.
+2. documentType "pix": comprovantes de Pix com valor e recebedor.
 Recuse (isReceipt false e expense null) qualquer outra imagem, por exemplo:
-- comprovantes de Pix, transferências, boletos ou extratos bancários sem itens discriminados;
-- fotos de pessoas, lugares, objetos, telas ou documentos que não sejam recibos;
-- recibos que mostrem apenas o valor total, sem o nome dos itens.
-Um recibo de serviço com a descrição do serviço e o valor conta como um item.
-Regras de extração:
+- transferências TED/DOC, boletos ou extratos bancários;
+- recibos que mostrem apenas o valor total, sem o nome dos itens;
+- fotos de pessoas, lugares, objetos, telas ou documentos que não sejam desses dois tipos.
+Regras gerais:
 - Datas no formato YYYY-MM-DD.
 - Valores em reais como número decimal (ex: 12.5), sem símbolo de moeda.
 - Escolha a categoria mais próxima da lista; na dúvida, use "Outros".
+Regras para "receipt":
+- pix null.
 - Em cada item, use unit "kg" para itens vendidos por peso ou volume (kg, g, L) e unit "un" para itens vendidos por unidade; itens "un" têm quantidade inteira.
-- Se o item não mostrar quantidade, use quantity 1, unit "un" e unitPrice igual ao valor do item.`;
+- Se o item não mostrar quantidade, use quantity 1, unit "un" e unitPrice igual ao valor do item.
+Regras para "pix":
+- items vazio, establishment com o nome do recebedor e totalAmount com o valor transferido.
+- Preencha pix com pagador (sender), recebedor (receiver), chave Pix, ID da transação e horário; use texto vazio para o que não aparecer.
+- A categoria segue o que o recebedor indica (ex: farmácia é "Saúde").`;
 
 const extractionSchema = z.object({
   isReceipt: z
     .boolean()
-    .describe("true somente se a imagem for um recibo, nota fiscal ou cupom com pelo menos um item com nome e valor"),
+    .describe("true somente se a imagem for um recibo com itens ou um comprovante Pix"),
   expense: expenseSchema.nullable().describe("Dados extraídos; null quando a imagem for recusada"),
 });
+
+function isAcceptedDocument(expense: Expense): boolean {
+  if (expense.documentType === "pix") {
+    return Boolean(expense.pix?.receiver.name) && expense.totalAmount > 0;
+  }
+  return expense.items.length > 0;
+}
 
 export type ExtractExpenseResult =
   | { ok: true; data: Expense; remainingExtractions: number }
@@ -85,11 +99,15 @@ export async function extractExpense(formData: FormData): Promise<ExtractExpense
       ],
     });
 
-    if (!output.isReceipt || !output.expense || output.expense.items.length === 0) {
+    if (!output.isReceipt || !output.expense || !isAcceptedDocument(output.expense)) {
       return { ok: false, error: NOT_A_RECEIPT_ERROR, remainingExtractions };
     }
 
-    return { ok: true, data: output.expense, remainingExtractions };
+    const expense = output.expense.documentType === "pix"
+      ? { ...output.expense, items: [] }
+      : { ...output.expense, pix: null };
+
+    return { ok: true, data: expense, remainingExtractions };
   } catch (error) {
     console.error("Falha ao extrair os dados do recibo:", error);
     return {

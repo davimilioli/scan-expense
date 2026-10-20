@@ -32,6 +32,22 @@ const safeLocalStorage: StateStorage = {
   removeItem: (name) => localStorage.removeItem(name),
 };
 
+function migrateEntry(entry: HistoryEntry): HistoryEntry {
+  const { expense } = entry;
+  return {
+    ...entry,
+    expense: {
+      ...expense,
+      documentType: expense.documentType ?? "receipt",
+      pix: expense.pix ?? null,
+      items: expense.items.map((item) => ({
+        ...item,
+        unit: item.unit ?? (Number.isInteger(item.quantity) ? "un" : "kg"),
+      })),
+    },
+  };
+}
+
 export const useExpenseStore = create<ExpenseState>()(
   persist(
     (set) => ({
@@ -58,6 +74,11 @@ export const useExpenseStore = create<ExpenseState>()(
     }),
     {
       name: "scan-expense-history",
+      version: 1,
+      migrate: (persistedState) => {
+        const state = persistedState as Pick<ExpenseState, "entries" | "activeId">;
+        return { ...state, entries: state.entries.map(migrateEntry) } as ExpenseState;
+      },
       storage: createJSONStorage(() => safeLocalStorage),
       partialize: (state) => ({ entries: state.entries, activeId: state.activeId }),
       skipHydration: true,
