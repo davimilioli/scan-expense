@@ -246,6 +246,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - Ao adicionar, remover ou editar um item, o Valor Total passa a ser a soma dos itens. Quando a lista fica vazia, o valor atual é mantido.
 - Versão mobile: linhas empilhadas em cards.
 - Atualizado: os itens viraram cards (2 colunas no desktop, 1 no mobile) com descrição, quantidade, valor unitário e total, e os botões "Editar" e "Remover". "Editar" abre os campos no próprio card (um item por vez), e "+ Adicionar item" já abre o item novo em edição.
+- Cada item tem `unit` (`un` ou `kg`), extraída pela IA. Itens `un` exigem quantidade inteira (regra do `expenseFormSchema`, só no formulário); itens `kg` mantêm a fração. Recibos salvos antes desse campo têm a unidade deduzida da quantidade.
 - ✅ Critério: é possível editar, adicionar e remover itens, e o aviso aparece quando os valores não batem.
 
 ### Fase 5: Exportação

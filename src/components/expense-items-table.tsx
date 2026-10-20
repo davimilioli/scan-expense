@@ -4,9 +4,11 @@ import { Check, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { formatCurrency, parseDecimal } from "@/lib/format";
+import type { ItemUnit } from "@/lib/schemas/expense";
 
 export interface ItemDraft {
   description: string;
+  unit: ItemUnit;
   quantity: string;
   unitPrice: string;
   total: number;
@@ -18,7 +20,8 @@ interface ExpenseItemsTableProps {
   onItemsChange: (items: ItemDraft[]) => void;
 }
 
-const NEW_ITEM: ItemDraft = { description: "", quantity: "1", unitPrice: "0", total: 0 };
+const NEW_ITEM: ItemDraft = { description: "", unit: "un", quantity: "1", unitPrice: "0", total: 0 };
+const UNIT_LABELS: Record<ItemUnit, string> = { un: "Unidade", kg: "Peso (kg)" };
 const ICON_BUTTON_CLASS_NAME =
   "inline-flex flex-1 items-center justify-center rounded-md border border-zinc-300 p-2 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700";
 
@@ -30,9 +33,10 @@ function formatAmount(value: number): string {
   return Number.isFinite(value) ? formatCurrency(value) : "—";
 }
 
-function formatQuantity(quantity: string): string {
+function formatQuantity(quantity: string, unit: ItemUnit): string {
   const value = parseDecimal(quantity);
-  return Number.isFinite(value) ? value.toLocaleString("pt-BR", { maximumFractionDigits: 3 }) : "—";
+  if (!Number.isFinite(value)) return "—";
+  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 3 })} ${unit}`;
 }
 
 export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItemsTableProps) {
@@ -48,9 +52,9 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
     );
   }
 
-  function changeDescription(index: number, description: string) {
+  function changeDetails(index: number, changes: Pick<Partial<ItemDraft>, "description" | "unit">) {
     onItemsChange(
-      items.map((item, itemIndex) => (itemIndex === index ? { ...item, description } : item)),
+      items.map((item, itemIndex) => (itemIndex === index ? { ...item, ...changes } : item)),
     );
   }
 
@@ -94,16 +98,29 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
                       <input
                         type="text"
                         value={item.description}
-                        onChange={(event) => changeDescription(index, event.target.value)}
+                        onChange={(event) => changeDetails(index, { description: event.target.value })}
                         className={INPUT_CLASS_NAME}
                       />
                     </FormField>
                     <div className="grid grid-cols-2 gap-3">
+                      <FormField label="Unidade">
+                        <select
+                          value={item.unit}
+                          onChange={(event) => changeDetails(index, { unit: event.target.value as ItemUnit })}
+                          className={INPUT_CLASS_NAME}
+                        >
+                          {Object.entries(UNIT_LABELS).map(([unit, label]) => (
+                            <option key={unit} value={unit}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </FormField>
                       <FormField label="Quantidade" error={quantityError}>
                         <input
                           type="number"
-                          inputMode="decimal"
-                          step="any"
+                          inputMode={item.unit === "un" ? "numeric" : "decimal"}
+                          step={item.unit === "un" ? "1" : "any"}
                           min="0"
                           value={item.quantity}
                           onChange={(event) => changeAmounts(index, { quantity: event.target.value })}
@@ -121,12 +138,12 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
                           className={INPUT_CLASS_NAME}
                         />
                       </FormField>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="block text-xs text-zinc-500">Total</span>
-                      <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm font-semibold">
-                        {formatAmount(item.total)}
-                      </p>
+                      <div className="space-y-1">
+                        <span className="block text-xs text-zinc-500">Total</span>
+                        <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm font-semibold">
+                          {formatAmount(item.total)}
+                        </p>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -136,7 +153,7 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
                     </p>
                     <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                       <dt className="text-zinc-500">Quantidade</dt>
-                      <dd className="text-right">{formatQuantity(item.quantity)}</dd>
+                      <dd className="text-right">{formatQuantity(item.quantity, item.unit)}</dd>
                       <dt className="text-zinc-500">Valor unitário</dt>
                       <dd className="text-right">{formatAmount(parseDecimal(item.unitPrice))}</dd>
                       <dt className="text-zinc-500">Total</dt>

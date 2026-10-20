@@ -5,7 +5,7 @@ import { ExpenseItemsTable, type ItemDraft } from "@/components/expense-items-ta
 import { ExportActions } from "@/components/export-actions";
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { formatCurrency, parseDecimal } from "@/lib/format";
-import { categories, expenseSchema, type Category, type Expense } from "@/lib/schemas/expense";
+import { categories, expenseFormSchema, type Category, type Expense } from "@/lib/schemas/expense";
 import { useExpenseStore } from "@/store/expense-store";
 
 interface ExpenseDraft {
@@ -27,6 +27,7 @@ function toDraft(expense: Expense): ExpenseDraft {
     totalAmount: String(expense.totalAmount),
     items: expense.items.map((item) => ({
       ...item,
+      unit: item.unit ?? (Number.isInteger(item.quantity) ? "un" : "kg"),
       quantity: String(item.quantity),
       unitPrice: String(item.unitPrice),
     })),
@@ -39,7 +40,7 @@ function sumItemTotals(items: ItemDraft[]): number {
 }
 
 function validateDraft(draft: ExpenseDraft) {
-  return expenseSchema.safeParse({
+  return expenseFormSchema.safeParse({
     ...draft,
     totalAmount: parseDecimal(draft.totalAmount),
     items: draft.items.map((item) => ({

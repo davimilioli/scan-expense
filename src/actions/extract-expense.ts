@@ -16,6 +16,7 @@ Regras:
 - Valores em reais como número decimal (ex: 12.5), sem símbolo de moeda.
 - Escolha a categoria mais próxima da lista; na dúvida, use "Outros".
 - Comprovantes Pix e recibos sem itens discriminados têm a lista de itens vazia.
+- Em cada item, use unit "kg" para itens vendidos por peso ou volume (kg, g, L) e unit "un" para itens vendidos por unidade; itens "un" têm quantidade inteira.
 - Se a imagem não for um recibo, nota fiscal ou comprovante de pagamento, responda isReceipt false e expense null.`;
 
 const extractionSchema = z.object({

@@ -12,8 +12,15 @@ export const categories = [
   "Outros",
 ] as const;
 
+export const itemUnits = ["un", "kg"] as const;
+
 export const expenseItemSchema = z.object({
   description: z.string().min(1, "Informe a descrição").describe("Nome do produto ou serviço"),
+  unit: z
+    .enum(itemUnits, "Escolha a unidade")
+    .describe(
+      "Unidade de venda: 'kg' para itens vendidos por peso ou volume (kg, g, L), 'un' para itens vendidos por unidade",
+    ),
   quantity: z
     .number("Informe a quantidade")
     .positive("A quantidade deve ser maior que zero")
@@ -46,7 +53,20 @@ export const expenseSchema = z.object({
     .describe("Itens discriminados; lista vazia quando não houver itens, como em comprovantes Pix"),
 });
 
+export const expenseFormSchema = expenseSchema.superRefine((expense, context) => {
+  expense.items.forEach((item, index) => {
+    if (item.unit === "un" && !Number.isInteger(item.quantity)) {
+      context.addIssue({
+        code: "custom",
+        message: "Use um número inteiro para itens vendidos por unidade",
+        path: ["items", index, "quantity"],
+      });
+    }
+  });
+});
+
 export type Category = (typeof categories)[number];
+export type ItemUnit = (typeof itemUnits)[number];
 export type ExpenseItem = z.infer<typeof expenseItemSchema>;
 export type Expense = z.infer<typeof expenseSchema>;
 
