@@ -133,12 +133,12 @@ type HistoryEntry = {
 
 ```
 src/
+  actions/
+    extract-expense.ts        # Server Action
   app/
     layout.tsx
     page.tsx
     globals.css
-    actions/
-      extract-expense.ts      # Server Action
   components/
     image-uploader.tsx
     expense-card.tsx

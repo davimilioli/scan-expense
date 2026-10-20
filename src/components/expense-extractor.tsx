@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { extractExpense, getRemainingExtractions } from "@/app/actions/extract-expense";
+import { extractExpense, getRemainingExtractions } from "@/actions/extract-expense";
 import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { ExpenseCard } from "@/components/expense-card";
 import { ExtractionSkeleton } from "@/components/extraction-skeleton";

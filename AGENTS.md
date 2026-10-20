@@ -24,7 +24,7 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 ### Fluxo e arquivos principais
 
 - `src/components/expense-extractor.tsx`: orquestra o fluxo. Comprime a imagem, chama a Server Action e salva o resultado no histórico.
-- `src/app/actions/extract-expense.ts`: Server Action que valida a imagem e chama o Gemini. Retorna `{ ok: true, data } | { ok: false, error }` e nunca lança erro para o cliente.
+- `src/actions/extract-expense.ts`: Server Action que valida a imagem e chama o Gemini. Retorna `{ ok: true, data } | { ok: false, error }` e nunca lança erro para o cliente.
 - `src/lib/schemas/expense.ts`: o `expenseSchema` é a fonte única de verdade. Serve à IA (pelos `.describe()`), ao formulário (pelas mensagens de erro em pt-BR) e aos tipos.
 - `src/store/expense-store.ts`: histórico com `persist` + `skipHydration`. Componentes que leem o store devem usar `useStoreHydration()` e só renderizar os dados depois que ele retornar `true`, para evitar erro de hidratação.
 - `src/components/expense-card.tsx` + `expense-items-table.tsx`: formulário editável com um rascunho local. Só grava no store quando o rascunho inteiro é válido, e também controla se a exportação fica habilitada.
