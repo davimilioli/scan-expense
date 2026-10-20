@@ -21,6 +21,7 @@ interface ExpenseCardProps {
   entryId: string;
   expense: Expense;
   actions: React.ReactNode;
+  remainingExtractions: number | null;
 }
 
 function toDraft(expense: Expense): ExpenseDraft {
@@ -53,7 +54,7 @@ function validateDraft(draft: ExpenseDraft) {
   });
 }
 
-export function ExpenseCard({ entryId, expense, actions }: ExpenseCardProps) {
+export function ExpenseCard({ entryId, expense, actions, remainingExtractions }: ExpenseCardProps) {
   const updateExpense = useExpenseStore((state) => state.updateExpense);
   const [draft, setDraft] = useState(() => toDraft(expense));
 
@@ -76,6 +77,7 @@ export function ExpenseCard({ entryId, expense, actions }: ExpenseCardProps) {
     { label: "Soma dos itens", value: formatAmount(itemsSum) },
     { label: "Valor total", value: formatAmount(totalAmount) },
     ...(hasDivergence ? [{ label: "Diferença", value: formatAmount(Math.abs(itemsSum - totalAmount)) }] : []),
+    ...(remainingExtractions === null ? [] : [{ label: "Créditos disponíveis", value: String(remainingExtractions) }]),
   ];
 
   function changeDraft(changes: Partial<ExpenseDraft>) {
@@ -162,6 +164,11 @@ export function ExpenseCard({ entryId, expense, actions }: ExpenseCardProps) {
               </div>
             ))}
           </dl>
+          {remainingExtractions === 0 && (
+            <p aria-live="polite" className="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              Você atingiu o limite de extrações
+            </p>
+          )}
           {hasDivergence && (
             <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
               A soma dos itens ({formatCurrency(itemsSum)}) é diferente do valor total (

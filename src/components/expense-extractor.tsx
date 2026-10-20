@@ -143,13 +143,8 @@ export function ExpenseExtractor() {
             entryId={displayedEntry.id}
             expense={displayedEntry.expense}
             actions={
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                {hasReachedLimit && (
-                  <p aria-live="polite" className="text-sm font-medium text-red-700">
-                    Você atingiu o limite de extrações
-                  </p>
-                )}
-                <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+              <div className="flex justify-end">
+                <div className="flex w-full gap-2 sm:w-auto">
                   <HistoryDialog triggerClassName="flex-1 sm:flex-none" />
                   <button
                     type="button"
@@ -163,6 +158,7 @@ export function ExpenseExtractor() {
                 </div>
               </div>
             }
+            remainingExtractions={remainingExtractions}
           />
           {hasStorageError && (
             <p role="alert" className="text-sm text-amber-700">
