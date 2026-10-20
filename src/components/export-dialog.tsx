@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
+import { PRIMARY_BUTTON_CLASS_NAME, ACCENT_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { toJson, toText } from "@/lib/export";
 import type { Expense } from "@/lib/schemas/expense";
 
@@ -61,7 +61,7 @@ export function ExportDialog({ expense, isDisabled }: ExportDialogProps) {
         type="button"
         onClick={openDialog}
         disabled={isDisabled}
-        className={SECONDARY_BUTTON_CLASS_NAME}
+        className={ACCENT_BUTTON_CLASS_NAME}
       >
         Ver e copiar resultado
       </button>
@@ -113,7 +113,7 @@ export function ExportDialog({ expense, isDisabled }: ExportDialogProps) {
           <button
             type="button"
             onClick={copyContent}
-            className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className={`w-full ${PRIMARY_BUTTON_CLASS_NAME}`}
           >
             {copyLabel}
           </button>

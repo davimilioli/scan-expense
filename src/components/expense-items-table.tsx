@@ -130,7 +130,7 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
       <button
         type="button"
         onClick={() => onItemsChange([...items, NEW_ITEM])}
-        className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+        className="text-sm font-medium text-indigo-500 hover:text-indigo-600"
       >
         + Adicionar item
       </button>

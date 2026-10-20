@@ -66,7 +66,7 @@ export function ImageUploader({ onFileChange }: ImageUploaderProps) {
   }
 
   const dropZoneClassName = isDragging
-    ? "border-emerald-500 bg-emerald-50"
+    ? "border-indigo-500 bg-indigo-50"
     : "border-zinc-300 hover:border-zinc-400";
 
   return (
@@ -114,7 +114,7 @@ export function ImageUploader({ onFileChange }: ImageUploaderProps) {
           onDragOver={handleDragOver}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
-          className={`flex h-48 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500 ${dropZoneClassName}`}
+          className={`flex h-48 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500 ${dropZoneClassName}`}
         >
           <span className="pointer-events-none text-sm font-medium">
             Arraste a imagem aqui ou clique para selecionar

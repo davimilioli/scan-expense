@@ -1,6 +1,6 @@
 "use client";
 
-import { SECONDARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
+import { ACCENT_BUTTON_CLASS_NAME } from "@/components/button-styles";
 import { ExportDialog } from "@/components/export-dialog";
 import { downloadFile, getCsvFileName, toCsv } from "@/lib/export";
 import type { Expense } from "@/lib/schemas/expense";
@@ -22,7 +22,7 @@ export function ExportActions({ expense, isDisabled }: ExportActionsProps) {
         type="button"
         onClick={exportCsv}
         disabled={isDisabled}
-        className={SECONDARY_BUTTON_CLASS_NAME}
+        className={ACCENT_BUTTON_CLASS_NAME}
       >
         Exportar CSV
       </button>

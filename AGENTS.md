@@ -48,5 +48,5 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 - Código simples e enxuto. Nomes por extenso, sem `_` em callbacks (`.map((item) => ...)`).
 - Componentes em `src/components` (arquivos em kebab-case, props em `interface`).
 - Classes Tailwind repetidas viram constante ou componente (`INPUT_CLASS_NAME`, `SECONDARY_BUTTON_CLASS_NAME`, `Panel`, `FormField`).
-- Destaque de cor único: `emerald`. Textos auxiliares em `zinc-500` ou mais escuro, por contraste.
+- Destaque de cor único: `indigo` (botões principais, foco e estados ativos). Ações secundárias com fundo usam `zinc-900`. Use os estilos de `button-styles.ts` em vez de repetir classes. Textos auxiliares em `zinc-500` ou mais escuro, por contraste.
 - Valide com `npx tsc --noEmit` e `npx eslint src`. Não rode `npm run dev`, `build` nem `start`, e não faça commit sem pedido explícito.

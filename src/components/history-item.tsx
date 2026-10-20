@@ -15,7 +15,7 @@ export function HistoryItem({ entry, isActive, onSelect, onRemove }: HistoryItem
   return (
     <li
       className={`flex items-center gap-2 rounded-lg p-2 ${
-        isActive ? "bg-emerald-50 ring-1 ring-emerald-200" : "hover:bg-zinc-50"
+        isActive ? "bg-indigo-50 ring-1 ring-indigo-200" : "hover:bg-zinc-50"
       }`}
     >
       <button

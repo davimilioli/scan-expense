@@ -116,7 +116,7 @@ type HistoryEntry = {
 
 ### RF5: Histórico local
 - Cada extração bem-sucedida é salva no store (zustand + persist), com miniatura.
-- Lista lateral (desktop) ou em uma seção abaixo (mobile), com miniatura, estabelecimento, data e valor.
+- Lista em um modal, aberto pelo botão "Histórico", com miniatura, estabelecimento, data e valor.
 - Clicar em uma entrada reabre o card para visualização e edição.
 - Excluir uma entrada (com confirmação) e "Limpar histórico".
 - Se a gravação falhar por cota do localStorage (`QuotaExceededError`), avisar o usuário sugerindo remover entradas antigas.
@@ -146,8 +146,9 @@ src/
     expense-items-table.tsx
     export-actions.tsx
     export-dialog.tsx         # modal com abas Texto/JSON
-    extraction-skeleton.tsx
+    extraction-loading.tsx    # animação exibida durante a extração
     form-field.tsx
+    history-dialog.tsx        # botão "Histórico" + modal
     history-item.tsx
     history-list.tsx
     image-uploader.tsx
@@ -263,7 +264,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T14. Componentes `HistoryList` e `HistoryItem`**
 - Lista com miniatura, estabelecimento, data e valor (BRL). Destaque da entrada ativa.
 - Clicar reabre a entrada no card. Excluir com confirmação. "Limpar histórico".
-- O painel de histórico (e o de dados extraídos) fica oculto enquanto não há dados. Sem histórico, a área principal ocupa a largura toda.
+- O histórico abre num modal (`HistoryDialog`) pelo botão "Histórico", que fica ao lado de "Extrair" e de "Nova extração". Abrir um recibo fecha o modal e mostra o formulário dele. O painel de dados extraídos fica oculto enquanto não há dados.
 - Ao abrir uma entrada pelo histórico, o upload atual é limpo (ação `openEntry` do store), para a imagem do painel não ficar diferente do recibo aberto.
 - Estado vazio amigável.
 - ✅ Critério: é possível navegar entre as extrações salvas, editar, excluir e limpar.
@@ -278,7 +279,8 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T16. Polimento de UX e acessibilidade**
 - Skeleton durante a extração, foco e navegação por teclado, labels, contraste e mensagens de erro consistentes.
 - Revisar a responsividade (360px, tablet, desktop).
-- Feito: `ExtractionSkeleton` com `role="status"`, contorno de foco global em `:focus-visible` (`globals.css`) e textos auxiliares de `zinc-400` para `zinc-500`, para atingir o contraste AA.
+- Feito: contorno de foco global em `:focus-visible` (`globals.css`) e textos auxiliares de `zinc-400` para `zinc-500`, para atingir o contraste AA.
+- Durante a extração, o upload fica oculto e aparece a animação `ExtractionLoading` (`role="status"`), que substituiu o skeleton. Ao terminar, aparece o formulário com o botão "Nova extração", que volta para o upload.
 - ✅ Critério: o fluxo completo funciona só com o teclado e o layout fica íntegro em todos os tamanhos.
 
 **[x] T17. Validação final com casos reais**
@@ -295,6 +297,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - O contador fica num cookie `httpOnly` (`scan-expense-usage`, validade de 1 ano), assinado com HMAC-SHA256 usando `RATE_LIMIT_SECRET`. Um cookie adulterado ou inválido é tratado como limite atingido.
 - Limitação conhecida e aceita: limpar os cookies ou usar uma aba anônima reinicia a contagem. Para um bloqueio robusto seria preciso persistir no servidor (ex: IP + Upstash Redis).
 - A interface mostra quantas extrações restam (lidas por `getRemainingExtractions()` ao abrir a página) e o aviso de limite atingido.
+- Com o limite atingido, a tela mostra o último recibo extraído (ou o que estiver aberto pelo histórico) e "Nova extração" fica desabilitado. Sem nenhum recibo salvo, aparece o upload com "Extrair" desabilitado.
 - ✅ Critério: a 4ª tentativa é recusada sem chamar a IA, e o contador sobrevive a um reload da página.
 
 ## 9. Riscos e mitigações
