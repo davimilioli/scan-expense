@@ -10,20 +10,28 @@ import { expenseSchema, type Expense } from "@/lib/schemas/expense";
 const MODEL_ID = "gemini-flash-lite-latest";
 const MAX_IMAGE_SIZE_IN_BYTES = 5 * 1024 * 1024;
 
-const SYSTEM_PROMPT = `Você extrai dados de recibos, notas fiscais e comprovantes Pix brasileiros.
-Regras:
+const NOT_A_RECEIPT_ERROR =
+  "Não encontramos um recibo com itens nesta imagem. Envie a foto de um recibo, nota fiscal ou cupom com o nome e o valor dos itens.";
+
+const SYSTEM_PROMPT = `Você extrai dados de recibos, notas fiscais e cupons fiscais brasileiros.
+Aceite somente imagens de recibos, notas fiscais ou cupons que listem pelo menos um item com nome e valor.
+Recuse (isReceipt false e expense null) qualquer outra imagem, por exemplo:
+- comprovantes de Pix, transferências, boletos ou extratos bancários sem itens discriminados;
+- fotos de pessoas, lugares, objetos, telas ou documentos que não sejam recibos;
+- recibos que mostrem apenas o valor total, sem o nome dos itens.
+Um recibo de serviço com a descrição do serviço e o valor conta como um item.
+Regras de extração:
 - Datas no formato YYYY-MM-DD.
 - Valores em reais como número decimal (ex: 12.5), sem símbolo de moeda.
 - Escolha a categoria mais próxima da lista; na dúvida, use "Outros".
-- Comprovantes Pix e recibos sem itens discriminados têm a lista de itens vazia.
 - Em cada item, use unit "kg" para itens vendidos por peso ou volume (kg, g, L) e unit "un" para itens vendidos por unidade; itens "un" têm quantidade inteira.
-- Se a imagem não for um recibo, nota fiscal ou comprovante de pagamento, responda isReceipt false e expense null.`;
+- Se o item não mostrar quantidade, use quantity 1, unit "un" e unitPrice igual ao valor do item.`;
 
 const extractionSchema = z.object({
   isReceipt: z
     .boolean()
-    .describe("true se a imagem for um recibo, nota fiscal ou comprovante de pagamento"),
-  expense: expenseSchema.nullable().describe("Dados extraídos; null quando não for um recibo"),
+    .describe("true somente se a imagem for um recibo, nota fiscal ou cupom com pelo menos um item com nome e valor"),
+  expense: expenseSchema.nullable().describe("Dados extraídos; null quando a imagem for recusada"),
 });
 
 export type ExtractExpenseResult =
@@ -77,12 +85,8 @@ export async function extractExpense(formData: FormData): Promise<ExtractExpense
       ],
     });
 
-    if (!output.isReceipt || !output.expense) {
-      return {
-        ok: false,
-        error: "Não encontramos um recibo ou comprovante nesta imagem.",
-        remainingExtractions,
-      };
+    if (!output.isReceipt || !output.expense || output.expense.items.length === 0) {
+      return { ok: false, error: NOT_A_RECEIPT_ERROR, remainingExtractions };
     }
 
     return { ok: true, data: output.expense, remainingExtractions };

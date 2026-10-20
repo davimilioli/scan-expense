@@ -50,7 +50,7 @@ export const expenseSchema = z.object({
     .describe("Valor total pago em reais, número decimal"),
   items: z
     .array(expenseItemSchema)
-    .describe("Itens discriminados; lista vazia quando não houver itens, como em comprovantes Pix"),
+    .describe("Itens discriminados, cada um com nome e valor"),
 });
 
 export const expenseItemFormSchema = expenseItemSchema.refine(

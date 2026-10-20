@@ -1,6 +1,6 @@
 # ScanExpense
 
-Extrator inteligente de despesas. Você envia a foto de um recibo, nota fiscal ou comprovante Pix e uma IA com visão lê a imagem e devolve os dados estruturados: estabelecimento, data, categoria, valor total e itens. Depois é só revisar, corrigir o que for preciso e exportar.
+Extrator inteligente de despesas. Você envia a foto de um recibo, nota fiscal ou cupom fiscal com os itens da compra e uma IA com visão lê a imagem e devolve os dados estruturados: estabelecimento, data, categoria, valor total e itens. Depois é só revisar, corrigir o que for preciso e exportar.
 
 Tudo acontece em uma única tela, sem cadastro nem login. O histórico das extrações fica salvo no próprio navegador.
 

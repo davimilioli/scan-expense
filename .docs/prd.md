@@ -2,7 +2,7 @@
 
 ## 1. Visão geral
 
-Aplicação web de tela única em que o usuário envia a imagem de um recibo, nota fiscal ou comprovante Pix e uma IA com visão extrai os dados estruturados na hora. O usuário revisa e edita os dados, copia o resultado como JSON ou exporta como CSV. As extrações ficam salvas num histórico local no navegador.
+Aplicação web de tela única em que o usuário envia a imagem de um recibo, nota fiscal ou cupom fiscal com os itens da compra e uma IA com visão extrai os dados estruturados na hora. O usuário revisa e edita os dados, copia o resultado como JSON ou exporta como CSV. As extrações ficam salvas num histórico local no navegador.
 
 ### Objetivos
 
@@ -69,7 +69,7 @@ export const expenseSchema = z.object({
   date: z.string(),            // ISO 8601: YYYY-MM-DD
   category: z.enum(categories),
   totalAmount: z.number().nonnegative(),
-  items: z.array(expenseItemSchema), // pode ser vazio (ex: comprovante Pix)
+  items: z.array(expenseItemSchema), // ao menos um item (recibos sem itens são recusados)
 })
 
 export type Expense = z.infer<typeof expenseSchema>
@@ -212,7 +212,8 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 **[x] T6. Server Action `extractExpense`**
 - Implementado com `generateText` + `Output.object` (o `generateObject` está descontinuado no AI SDK 7) e o modelo `gemini-flash-lite-latest` (o `gemini-flash-latest` estava sobrecarregado). A IA também retorna `isReceipt` para sinalizar imagens que não são recibos.
-- `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateText` + `Output.object` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, itens vazios para comprovante Pix, erro quando não for recibo).
+- `'use server'`. Recebe um `FormData` com a imagem, valida o tipo e o tamanho e chama o Gemini Flash via `generateText` + `Output.object` com o `expenseSchema` e um prompt de sistema em pt-BR (regras: data ISO, valores numéricos em reais, escolher a categoria mais próxima, erro quando não for recibo).
+- Atualizado: a IA só aceita recibos, notas e cupons com pelo menos um item com nome e valor. Comprovantes Pix, transferências e recibos só com o total são recusados, e a action também recusa resultados sem itens. Itens sem quantidade viram 1 unidade.
 - Retorna um resultado discriminado `{ ok, data | error }` e trata falhas da API e da validação.
 - ✅ Critério: com uma imagem de recibo real, retorna um objeto válido pelo schema. Com uma imagem aleatória, retorna um erro amigável.
 
@@ -287,7 +288,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - ✅ Critério: o fluxo completo funciona só com o teclado e o layout fica íntegro em todos os tamanhos.
 
 **[x] T17. Validação final com casos reais**
-- Testar com: cupom fiscal de supermercado (muitos itens), recibo manuscrito, comprovante Pix (sem itens), foto torta ou com pouca luz e uma imagem que não é recibo.
+- Testar com: cupom fiscal de supermercado (muitos itens), recibo manuscrito, comprovante Pix (agora recusado), recibo sem quantidade, recibo só com o total (recusado), foto torta ou com pouca luz e uma imagem que não é recibo.
 - Ajustar o prompt e as `.describe()` do schema conforme os resultados.
 - Validado com imagens **sintéticas** de cada cenário, com o mesmo schema, prompt e modelo da action. Todos os cenários extraíram os dados corretos (ou recusaram a imagem que não é recibo) entre 0,9s e 3,7s, sem precisar ajustar o prompt. Falta repetir com fotos reais.
 - ✅ Critério: extrações corretas ou falhas tratadas de forma amigável em todos os casos.

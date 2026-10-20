@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Contexto do projeto
 
-**Scan Expense**: tela única em que o usuário envia a foto de um recibo, nota fiscal ou comprovante Pix, a IA extrai os dados (estabelecimento, data, categoria, valor total e itens), o usuário revisa e edita, e então copia como texto/JSON ou exporta CSV. O histórico fica no localStorage, sem backend nem login.
+**Scan Expense**: tela única em que o usuário envia a foto de um recibo, nota fiscal ou cupom fiscal, a IA extrai os dados (estabelecimento, data, categoria, valor total e itens), o usuário revisa e edita, e então copia como texto/JSON ou exporta CSV. O histórico fica no localStorage, sem backend nem login.
 
 O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma tarefa do PRD, marque-a com `[x]` e anote qualquer desvio do plano original.
 
@@ -34,6 +34,7 @@ O planejamento e o status das tarefas ficam em `.docs/prd.md`. Ao concluir uma t
 
 - **`generateObject` está descontinuado no AI SDK 7.** Use `generateText` + `Output.object({ schema })`.
 - **Limite de uso:** cada usuário pode fazer até 3 chamadas à IA (`src/lib/rate-limit.ts`). O contador fica num cookie `httpOnly` assinado com HMAC e é consumido antes de chamar o Gemini. Limpar os cookies reinicia a contagem, e essa limitação foi aceita. O `rate-limit.ts` usa `node:crypto` e `next/headers`, então só pode ser importado no servidor.
+- **Só recibos com itens:** a IA aceita apenas recibos, notas e cupons com pelo menos um item com nome e valor (comprovantes Pix, transferências e recibos só com o total são recusados). A Server Action também recusa qualquer resultado sem itens, para a regra não depender só do prompt. Itens sem quantidade viram 1 unidade.
 - **Imagens que não são recibos:** a IA responde `{ isReceipt, expense | null }`, assim ela recusa a imagem em vez de inventar dados.
 - **Limite de tamanho:** o Server Action aceita até `5mb` (`experimental.serverActions.bodySizeLimit`). A imagem é comprimida no cliente antes do envio (lado maior até 1600px, JPEG).
 - **Campos numéricos do formulário:** ficam como texto no rascunho. `parseDecimal("")` retorna `NaN` para o Zod acusar o campo vazio.
