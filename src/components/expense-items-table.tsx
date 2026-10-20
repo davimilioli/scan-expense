@@ -1,10 +1,11 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { ItemEditDialog } from "@/components/item-edit-dialog";
+import { PRIMARY_BUTTON_CLASS_NAME } from "@/components/button-styles";
+import { ItemEditDialog, type ItemErrors } from "@/components/item-edit-dialog";
 import { formatCurrency, parseDecimal } from "@/lib/format";
-import type { ItemUnit } from "@/lib/schemas/expense";
+import { expenseItemFormSchema, type ItemUnit } from "@/lib/schemas/expense";
 
 export interface ItemDraft {
   description: string;
@@ -24,8 +25,19 @@ const NEW_ITEM: ItemDraft = { description: "", unit: "un", quantity: "1", unitPr
 const ICON_BUTTON_CLASS_NAME =
   "inline-flex flex-1 items-center justify-center rounded-md border border-zinc-300 p-2 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700";
 
+export function toItemValues(item: ItemDraft) {
+  return { ...item, quantity: parseDecimal(item.quantity), unitPrice: parseDecimal(item.unitPrice) };
+}
+
 function calculateTotal(quantity: string, unitPrice: string): number {
   return Math.round(parseDecimal(quantity) * parseDecimal(unitPrice) * 100) / 100;
+}
+
+function applyItemChanges(item: ItemDraft, changes: Partial<ItemDraft>): ItemDraft {
+  const nextItem = { ...item, ...changes };
+  const isAmountChange = "quantity" in changes || "unitPrice" in changes;
+  if (!isAmountChange) return nextItem;
+  return { ...nextItem, total: calculateTotal(nextItem.quantity, nextItem.unitPrice) };
 }
 
 function formatAmount(value: number): string {
@@ -38,7 +50,7 @@ function formatQuantity(quantity: string, unit: ItemUnit): string {
   return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 3 })} ${unit}`;
 }
 
-function getItemErrors(errors: Record<string, string>, index: number) {
+function getItemErrors(errors: Record<string, string>, index: number): ItemErrors {
   return {
     description: errors[`items.${index}.description`],
     quantity: errors[`items.${index}.quantity`],
@@ -46,46 +58,66 @@ function getItemErrors(errors: Record<string, string>, index: number) {
   };
 }
 
+function validateNewItem(item: ItemDraft): ItemErrors {
+  const result = expenseItemFormSchema.safeParse(toItemValues(item));
+  const errors: ItemErrors = {};
+  for (const issue of result.error?.issues ?? []) {
+    errors[issue.path[0] as keyof ItemErrors] ??= issue.message;
+  }
+  return errors;
+}
+
 export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItemsTableProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newItem, setNewItem] = useState<ItemDraft | null>(null);
+  const [hasTriedToAdd, setHasTriedToAdd] = useState(false);
   const editingItem = editingIndex === null ? undefined : items[editingIndex];
+  const newItemErrors = newItem && hasTriedToAdd ? validateNewItem(newItem) : {};
 
-  function changeAmounts(index: number, changes: Pick<Partial<ItemDraft>, "quantity" | "unitPrice">) {
+  function changeItem(index: number, changes: Partial<ItemDraft>) {
     onItemsChange(
-      items.map((item, itemIndex) => {
-        if (itemIndex !== index) return item;
-        const nextItem = { ...item, ...changes };
-        return { ...nextItem, total: calculateTotal(nextItem.quantity, nextItem.unitPrice) };
-      }),
+      items.map((item, itemIndex) => (itemIndex === index ? applyItemChanges(item, changes) : item)),
     );
-  }
-
-  function changeDetails(index: number, changes: Pick<Partial<ItemDraft>, "description" | "unit">) {
-    onItemsChange(
-      items.map((item, itemIndex) => (itemIndex === index ? { ...item, ...changes } : item)),
-    );
-  }
-
-  function addItem() {
-    onItemsChange([...items, NEW_ITEM]);
-    setEditingIndex(items.length);
   }
 
   function removeItem(index: number) {
     onItemsChange(items.filter((item, itemIndex) => itemIndex !== index));
   }
 
+  function openNewItem() {
+    setNewItem(NEW_ITEM);
+    setHasTriedToAdd(false);
+  }
+
+  function addNewItem() {
+    if (!newItem) return;
+
+    const hasErrors = Object.values(validateNewItem(newItem)).some(Boolean);
+    if (hasErrors) {
+      setHasTriedToAdd(true);
+      return;
+    }
+
+    onItemsChange([...items, newItem]);
+    setNewItem(null);
+  }
+
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-zinc-500">Itens</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-medium text-zinc-500">Itens</h3>
+        <button type="button" onClick={openNewItem} className={PRIMARY_BUTTON_CLASS_NAME}>
+          <Plus aria-hidden className="size-4" />
+          Adicionar item
+        </button>
+      </div>
 
       {items.length === 0 ? (
         <p className="text-sm text-zinc-500">Sem itens discriminados.</p>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {items.map((item, index) => {
-            const itemErrors = getItemErrors(errors, index);
-            const hasError = Object.values(itemErrors).some(Boolean);
+            const hasError = Object.values(getItemErrors(errors, index)).some(Boolean);
 
             return (
               <li
@@ -133,23 +165,28 @@ export function ExpenseItemsTable({ items, errors, onItemsChange }: ExpenseItems
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={addItem}
-        className="text-sm font-medium text-indigo-500 hover:text-indigo-600"
-      >
-        + Adicionar item
-      </button>
-
       {editingIndex !== null && editingItem && (
         <ItemEditDialog
           key={editingIndex}
+          title={`Editar item ${editingIndex + 1}`}
+          confirmLabel="Concluir"
           item={editingItem}
-          itemNumber={editingIndex + 1}
           errors={getItemErrors(errors, editingIndex)}
-          onDetailsChange={(changes) => changeDetails(editingIndex, changes)}
-          onAmountsChange={(changes) => changeAmounts(editingIndex, changes)}
+          onChange={(changes) => changeItem(editingIndex, changes)}
+          onConfirm={() => setEditingIndex(null)}
           onClose={() => setEditingIndex(null)}
+        />
+      )}
+
+      {newItem && (
+        <ItemEditDialog
+          title="Adicionar item"
+          confirmLabel="Adicionar"
+          item={newItem}
+          errors={newItemErrors}
+          onChange={(changes) => setNewItem(applyItemChanges(newItem, changes))}
+          onConfirm={addNewItem}
+          onClose={() => setNewItem(null)}
         />
       )}
     </div>

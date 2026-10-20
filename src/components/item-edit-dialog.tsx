@@ -8,23 +8,31 @@ import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { formatCurrency } from "@/lib/format";
 import type { ItemUnit } from "@/lib/schemas/expense";
 
-export const UNIT_LABELS: Record<ItemUnit, string> = { un: "Unidade", kg: "Peso (kg)" };
+const UNIT_LABELS: Record<ItemUnit, string> = { un: "Unidade", kg: "Peso (kg)" };
+
+export interface ItemErrors {
+  description?: string;
+  quantity?: string;
+  unitPrice?: string;
+}
 
 interface ItemEditDialogProps {
+  title: string;
+  confirmLabel: string;
   item: ItemDraft;
-  itemNumber: number;
-  errors: { description?: string; quantity?: string; unitPrice?: string };
-  onDetailsChange: (changes: Pick<Partial<ItemDraft>, "description" | "unit">) => void;
-  onAmountsChange: (changes: Pick<Partial<ItemDraft>, "quantity" | "unitPrice">) => void;
+  errors: ItemErrors;
+  onChange: (changes: Partial<ItemDraft>) => void;
+  onConfirm: () => void;
   onClose: () => void;
 }
 
 export function ItemEditDialog({
+  title,
+  confirmLabel,
   item,
-  itemNumber,
   errors,
-  onDetailsChange,
-  onAmountsChange,
+  onChange,
+  onConfirm,
   onClose,
 }: ItemEditDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -37,17 +45,26 @@ export function ItemEditDialog({
     <dialog
       ref={dialogRef}
       onClose={onClose}
-      aria-label={`Editar item ${itemNumber}`}
+      aria-label={title}
       className="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl p-5 backdrop:bg-black/40"
     >
       <div className="space-y-4">
-        <h2 className="text-base font-semibold">Editar item {itemNumber}</h2>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-base font-semibold">{title}</h2>
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.close()}
+            className="rounded-md px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100"
+          >
+            Fechar
+          </button>
+        </div>
 
         <FormField label="Descrição" error={errors.description}>
           <input
             type="text"
             value={item.description}
-            onChange={(event) => onDetailsChange({ description: event.target.value })}
+            onChange={(event) => onChange({ description: event.target.value })}
             className={INPUT_CLASS_NAME}
           />
         </FormField>
@@ -56,7 +73,7 @@ export function ItemEditDialog({
           <FormField label="Unidade">
             <select
               value={item.unit}
-              onChange={(event) => onDetailsChange({ unit: event.target.value as ItemUnit })}
+              onChange={(event) => onChange({ unit: event.target.value as ItemUnit })}
               className={INPUT_CLASS_NAME}
             >
               {Object.entries(UNIT_LABELS).map(([unit, label]) => (
@@ -73,7 +90,7 @@ export function ItemEditDialog({
               step={item.unit === "un" ? "1" : "any"}
               min="0"
               value={item.quantity}
-              onChange={(event) => onAmountsChange({ quantity: event.target.value })}
+              onChange={(event) => onChange({ quantity: event.target.value })}
               className={INPUT_CLASS_NAME}
             />
           </FormField>
@@ -84,7 +101,7 @@ export function ItemEditDialog({
               step="any"
               min="0"
               value={item.unitPrice}
-              onChange={(event) => onAmountsChange({ unitPrice: event.target.value })}
+              onChange={(event) => onChange({ unitPrice: event.target.value })}
               className={INPUT_CLASS_NAME}
             />
           </FormField>
@@ -98,11 +115,11 @@ export function ItemEditDialog({
 
         <button
           type="button"
-          onClick={() => dialogRef.current?.close()}
+          onClick={onConfirm}
           className={`w-full ${PRIMARY_BUTTON_CLASS_NAME}`}
         >
           <Check aria-hidden className="size-4" />
-          Concluir
+          {confirmLabel}
         </button>
       </div>
     </dialog>

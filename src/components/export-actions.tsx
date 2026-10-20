@@ -16,7 +16,7 @@ export function ExportActions({ expense, isDisabled }: ExportActionsProps) {
   }
 
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="grid gap-2">
       <ExportDialog expense={expense} isDisabled={isDisabled} />
       <button
         type="button"

@@ -137,40 +137,40 @@ export function ExpenseExtractor() {
       {isPending && <ExtractionLoading />}
 
       {!isPending && hasExtractedData && (
-        <Panel className="mx-auto w-full max-w-4xl">
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              {hasReachedLimit && (
-                <p aria-live="polite" className="text-sm font-medium text-red-700">
-                  Você atingiu o limite de extrações
-                </p>
-              )}
-              <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
-                <HistoryDialog triggerClassName="flex-1 sm:flex-none" />
-                <button
-                  type="button"
-                  onClick={startNewExtraction}
-                  disabled={hasReachedLimit}
-                  className={`flex-1 sm:flex-none ${PRIMARY_BUTTON_CLASS_NAME}`}
-                >
-                  <Plus aria-hidden className="size-4" />
-                  Nova extração
-                </button>
+        <div className="mx-auto w-full max-w-5xl space-y-4">
+          <ExpenseCard
+            key={displayedEntry.id}
+            entryId={displayedEntry.id}
+            expense={displayedEntry.expense}
+            actions={
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                {hasReachedLimit && (
+                  <p aria-live="polite" className="text-sm font-medium text-red-700">
+                    Você atingiu o limite de extrações
+                  </p>
+                )}
+                <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+                  <HistoryDialog triggerClassName="flex-1 sm:flex-none" />
+                  <button
+                    type="button"
+                    onClick={startNewExtraction}
+                    disabled={hasReachedLimit}
+                    className={`flex-1 sm:flex-none ${PRIMARY_BUTTON_CLASS_NAME}`}
+                  >
+                    <Plus aria-hidden className="size-4" />
+                    Nova extração
+                  </button>
+                </div>
               </div>
-            </div>
-            <ExpenseCard
-              key={displayedEntry.id}
-              entryId={displayedEntry.id}
-              expense={displayedEntry.expense}
-            />
-            {hasStorageError && (
-              <p role="alert" className="text-sm text-amber-700">
-                O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
-                entradas antigas do histórico.
-              </p>
-            )}
-          </div>
-        </Panel>
+            }
+          />
+          {hasStorageError && (
+            <p role="alert" className="text-sm text-amber-700">
+              O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
+              entradas antigas do histórico.
+            </p>
+          )}
+        </div>
       )}
 
       {isShowingUpload && remainingExtractions !== null && (

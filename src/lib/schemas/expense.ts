@@ -53,16 +53,13 @@ export const expenseSchema = z.object({
     .describe("Itens discriminados; lista vazia quando não houver itens, como em comprovantes Pix"),
 });
 
-export const expenseFormSchema = expenseSchema.superRefine((expense, context) => {
-  expense.items.forEach((item, index) => {
-    if (item.unit === "un" && !Number.isInteger(item.quantity)) {
-      context.addIssue({
-        code: "custom",
-        message: "Use um número inteiro para itens vendidos por unidade",
-        path: ["items", index, "quantity"],
-      });
-    }
-  });
+export const expenseItemFormSchema = expenseItemSchema.refine(
+  (item) => item.unit === "kg" || Number.isInteger(item.quantity),
+  { message: "Use um número inteiro para itens vendidos por unidade", path: ["quantity"] },
+);
+
+export const expenseFormSchema = expenseSchema.extend({
+  items: z.array(expenseItemFormSchema),
 });
 
 export type Category = (typeof categories)[number];
