@@ -118,7 +118,7 @@ type HistoryEntry = {
 - Cada extração bem-sucedida é salva no store (zustand + persist), com miniatura.
 - Lista em um modal, aberto pelo botão "Histórico", com miniatura, estabelecimento, data e valor.
 - Clicar em uma entrada reabre o card para visualização e edição.
-- Excluir uma entrada (com confirmação) e "Limpar histórico".
+- ~~Excluir uma entrada (com confirmação) e "Limpar histórico".~~ Removido: o histórico não tem exclusão.
 - Se a gravação falhar por cota do localStorage (`QuotaExceededError`), avisar o usuário sugerindo remover entradas antigas.
 - Evitar erro de hidratação: renderizar o histórico só depois de o store reidratar.
 
@@ -227,7 +227,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 **[x] T8. Store Zustand (`src/store/expense-store.ts`)**
 - Implementado com `skipHydration` + o hook `useStoreHydration()`, que lê o localStorage só depois de montar no cliente. Só `entries` e `activeId` são persistidos.
 - Estado: `entries: HistoryEntry[]` e `activeId: string | null`.
-- Ações: `addEntry`, `updateExpense(id, expense)`, `removeEntry`, `clearHistory` e `setActive`.
+- Ações: `addEntry`, `updateExpense(id, expense)`, `removeEntry`, `clearHistory` e `setActive`. (`removeEntry` e `clearHistory` foram removidas depois, junto com a exclusão do histórico.)
 - `persist` com a chave `scan-expense-history`, tratamento de `QuotaExceededError` e controle de reidratação (`hasHydrated`).
 - ✅ Critério: as entradas sobrevivem a um reload da página e não há erro de hidratação.
 
@@ -267,7 +267,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 **[x] T14. Componentes `HistoryList` e `HistoryItem`**
 - Lista com miniatura, estabelecimento, data e valor (BRL). Destaque da entrada ativa.
-- Clicar reabre a entrada no card. Excluir com confirmação. "Limpar histórico".
+- Clicar reabre a entrada no card. A exclusão de entradas e o "Limpar histórico" foram removidos depois, por não serem necessários.
 - O histórico abre num modal (`HistoryDialog`) pelo botão "Histórico", que fica ao lado de "Extrair" e de "Nova extração". Abrir um recibo fecha o modal e mostra o formulário dele. O painel de dados extraídos fica oculto enquanto não há dados.
 - Ao abrir uma entrada pelo histórico, o upload atual é limpo (ação `openEntry` do store), para a imagem do painel não ficar diferente do recibo aberto.
 - Estado vazio amigável.

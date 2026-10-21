@@ -162,8 +162,7 @@ export function ExpenseExtractor() {
           />
           {hasStorageError && (
             <p role="alert" className="text-sm text-amber-700">
-              O armazenamento do navegador está cheio e o histórico não foi salvo. Remova
-              entradas antigas do histórico.
+              O armazenamento do navegador está cheio e esta extração não foi salva no histórico.
             </p>
           )}
         </div>

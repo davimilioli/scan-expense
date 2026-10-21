@@ -12,8 +12,6 @@ interface ExpenseState {
   addEntry: (entry: HistoryEntry) => void;
   openEntry: (id: string) => void;
   updateExpense: (id: string, expense: Expense) => void;
-  removeEntry: (id: string) => void;
-  clearHistory: () => void;
   setActive: (id: string | null) => void;
 }
 
@@ -64,12 +62,6 @@ export const useExpenseStore = create<ExpenseState>()(
         set((state) => ({
           entries: state.entries.map((entry) => (entry.id === id ? { ...entry, expense } : entry)),
         })),
-      removeEntry: (id) =>
-        set((state) => ({
-          entries: state.entries.filter((entry) => entry.id !== id),
-          activeId: state.activeId === id ? null : state.activeId,
-        })),
-      clearHistory: () => set({ entries: [], activeId: null }),
       setActive: (id) => set({ activeId: id }),
     }),
     {

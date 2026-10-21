@@ -6,23 +6,20 @@ interface HistoryItemProps {
   entry: HistoryEntry;
   isActive: boolean;
   onSelect: () => void;
-  onRemove: () => void;
 }
 
-export function HistoryItem({ entry, isActive, onSelect, onRemove }: HistoryItemProps) {
+export function HistoryItem({ entry, isActive, onSelect }: HistoryItemProps) {
   const { documentType, establishment, date, totalAmount } = entry.expense;
 
   return (
-    <li
-      className={`flex items-center gap-2 rounded-lg p-2 ${
-        isActive ? "bg-indigo-50 ring-1 ring-indigo-200" : "hover:bg-zinc-50"
-      }`}
-    >
+    <li>
       <button
         type="button"
         onClick={onSelect}
         aria-current={isActive ? "true" : undefined}
-        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+        className={`flex w-full items-center gap-3 rounded-lg p-2 text-left ${
+          isActive ? "bg-indigo-50 ring-1 ring-indigo-200" : "hover:bg-zinc-50"
+        }`}
       >
         <Image
           src={entry.thumbnail}
@@ -39,14 +36,6 @@ export function HistoryItem({ entry, isActive, onSelect, onRemove }: HistoryItem
             {formatDate(date)} · {formatCurrency(totalAmount)}
           </span>
         </span>
-      </button>
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Excluir ${establishment} do histórico`}
-        className="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-      >
-        Excluir
       </button>
     </li>
   );
