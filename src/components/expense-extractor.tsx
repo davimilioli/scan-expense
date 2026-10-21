@@ -168,16 +168,9 @@ export function ExpenseExtractor() {
         </div>
       )}
 
-      {isShowingUpload && remainingExtractions !== null && (
-        <p
-          aria-live="polite"
-          className={`text-center text-xs font-medium ${hasReachedLimit ? "text-red-700" : "text-zinc-500"}`}
-        >
-          {hasReachedLimit
-            ? "Você atingiu o limite de extrações"
-            : remainingExtractions === 1
-              ? "Resta 1 extração"
-              : `Restam ${remainingExtractions} extrações`}
+      {isShowingUpload && hasReachedLimit && (
+        <p aria-live="polite" className="text-center text-xs font-medium text-red-700">
+          Você atingiu o limite de extrações
         </p>
       )}
     </>
