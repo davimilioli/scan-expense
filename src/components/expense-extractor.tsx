@@ -98,9 +98,10 @@ export function ExpenseExtractor() {
   }
 
   const isShowingUpload = !isPending && !hasExtractedData;
+  const isShowingResult = !isPending && hasExtractedData;
 
   return (
-    <>
+    <div className={`space-y-6 ${isShowingResult ? "" : "my-auto"}`}>
       {isShowingUpload && (
         <header className="mx-auto max-w-xl space-y-2 text-center">
           <h1 className="text-3xl font-semibold">Scan Expense</h1>
@@ -136,7 +137,7 @@ export function ExpenseExtractor() {
 
       {isPending && <ExtractionLoading />}
 
-      {!isPending && hasExtractedData && (
+      {isShowingResult && (
         <div className="mx-auto w-full max-w-7xl space-y-4">
           <ExpenseCard
             key={displayedEntry.id}
@@ -175,6 +176,6 @@ export function ExpenseExtractor() {
           Você atingiu o limite de extrações
         </p>
       )}
-    </>
+    </div>
   );
 }
