@@ -83,7 +83,7 @@ Cada campo recebe um `.describe()` com instruções para a IA (por exemplo: "dat
 type HistoryEntry = {
   id: string            // crypto.randomUUID()
   createdAt: string     // ISO
-  thumbnail: string     // data URL JPEG, lado maior de ~200px (~10–20KB)
+  thumbnail: string     // data URL JPEG, lado maior de até 800px (~60–100KB); usado no histórico e na coluna da foto
   expense: Expense
 }
 ```
@@ -205,7 +205,7 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 
 **[x] T5. Utilitários de imagem (`src/lib/image.ts`)**
 - `compressImage(file) → Blob/File` (lado maior ≤ 1600px, JPEG 0.85).
-- `createThumbnail(file) → dataURL` (lado maior ≈ 200px, JPEG 0.7).
+- `createThumbnail(file) → dataURL` (lado maior ≈ 200px, JPEG 0.7). Depois aumentado para 800px e JPEG 0.75, para exibir a foto do recibo ao lado do formulário.
 - ✅ Critério: uma foto de celular (~4MB) vira um arquivo menor que 1MB e uma miniatura de ~20KB.
 
 ### Fase 2: Extração com IA
@@ -312,6 +312,13 @@ Cada tarefa entrega algo verificável e depende só das anteriores.
 - Num Pix, `establishment` acompanha o nome do recebedor e `items` fica vazio. Exportação própria em texto e CSV (colunas `tipo`, `data`, `horario`, `pagador_*`, `recebedor_*`, `chave_pix`, `id_transacao`). O histórico mostra "Pix ·".
 - O histórico salvo foi migrado (versão 1 do `persist`).
 - ✅ Critério: um comprovante Pix abre no layout próprio, editável, com exportação correta. Recibos antigos continuam abrindo no layout de recibo.
+
+### Fase 10: Foto do recibo
+
+**[x] T20. Coluna com a foto do recibo**
+- Depois da extração, o grid ganha uma coluna à esquerda com a foto do recibo e a data e hora da extração ("Extraído em 21/10/2026 às 14:32").
+- A partir de 1280px (`xl`), 3 colunas: foto, formulário e resumo, com a foto acompanhando a rolagem. Abaixo disso, a foto vira uma faixa compacta acima do formulário.
+- A imagem salva (`thumbnail`) passou de 200px para 800px. Recibos antigos continuam com a imagem menor.
 
 ## 9. Riscos e mitigações
 

@@ -137,11 +137,13 @@ export function ExpenseExtractor() {
       {isPending && <ExtractionLoading />}
 
       {!isPending && hasExtractedData && (
-        <div className="mx-auto w-full max-w-5xl space-y-4">
+        <div className="mx-auto w-full max-w-7xl space-y-4">
           <ExpenseCard
             key={displayedEntry.id}
             entryId={displayedEntry.id}
             expense={displayedEntry.expense}
+            image={displayedEntry.thumbnail}
+            extractedAt={displayedEntry.createdAt}
             actions={
               <div className="flex justify-end">
                 <div className="flex w-full gap-2 sm:w-auto">

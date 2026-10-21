@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { ExpenseItemsTable, toItemValues, type ItemDraft } from "@/components/expense-items-table";
 import { ExportActions } from "@/components/export-actions";
 import { FormField, INPUT_CLASS_NAME } from "@/components/form-field";
 import { Panel } from "@/components/panel";
 import { PixDetailsFields } from "@/components/pix-details-fields";
-import { formatCurrency, parseDecimal } from "@/lib/format";
+import { formatCurrency, formatDateTime, parseDecimal } from "@/lib/format";
 import {
   categories,
   expenseFormSchema,
@@ -30,6 +31,8 @@ interface ExpenseDraft {
 interface ExpenseCardProps {
   entryId: string;
   expense: Expense;
+  image: string;
+  extractedAt: string;
   actions: React.ReactNode;
   remainingExtractions: number | null;
 }
@@ -64,7 +67,14 @@ function validateDraft(draft: ExpenseDraft) {
   });
 }
 
-export function ExpenseCard({ entryId, expense, actions, remainingExtractions }: ExpenseCardProps) {
+export function ExpenseCard({
+  entryId,
+  expense,
+  image,
+  extractedAt,
+  actions,
+  remainingExtractions,
+}: ExpenseCardProps) {
   const updateExpense = useExpenseStore((state) => state.updateExpense);
   const [draft, setDraft] = useState(() => toDraft(expense));
   const pix = draft.documentType === "pix" ? draft.pix : null;
@@ -159,7 +169,24 @@ export function ExpenseCard({ entryId, expense, actions, remainingExtractions }:
   );
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[1fr_17rem]">
+    <div className="grid items-start gap-4 lg:grid-cols-[1fr_17rem] xl:grid-cols-[15rem_1fr_17rem]">
+      <Panel className="py-3 sm:py-5 lg:col-span-2 xl:sticky xl:top-8 xl:col-span-1">
+        <div className="flex items-center gap-3 sm:gap-4 xl:flex-col xl:items-stretch">
+          <Image
+            src={image}
+            alt="Foto do recibo"
+            width={800}
+            height={1000}
+            unoptimized
+            className="h-16 w-auto rounded-lg border border-zinc-200 bg-zinc-50 object-contain sm:h-28 xl:h-auto xl:max-h-[28rem] xl:w-full"
+          />
+          <div className="text-xs sm:text-sm">
+            <p className="text-zinc-500">Extraído em</p>
+            <p className="font-medium">{formatDateTime(extractedAt)}</p>
+          </div>
+        </div>
+      </Panel>
+
       <div className="min-w-0 space-y-4">
         <Panel>
           <div className="space-y-6">

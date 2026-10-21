@@ -2,8 +2,8 @@ export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const COMPRESSED_MAX_SIDE = 1600;
 const COMPRESSED_QUALITY = 0.85;
-const THUMBNAIL_MAX_SIDE = 200;
-const THUMBNAIL_QUALITY = 0.7;
+const THUMBNAIL_MAX_SIDE = 800;
+const THUMBNAIL_QUALITY = 0.75;
 
 async function drawResizedImage(file: File, maxSide: number): Promise<HTMLCanvasElement> {
   const bitmap = await createImageBitmap(file);
